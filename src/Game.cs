@@ -4,7 +4,7 @@ using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Runtime.CompilerServices;
 
-namespace SharpWoxel
+namespace SharpWoxel.src
 {
     public class Game : GameWindow
     {

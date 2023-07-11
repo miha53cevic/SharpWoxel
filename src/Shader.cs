@@ -1,6 +1,6 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 
-namespace SharpWoxel
+namespace SharpWoxel.src
 {
     class Shader : IDisposable
     {
