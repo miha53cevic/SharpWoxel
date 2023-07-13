@@ -2,28 +2,46 @@
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using System.Runtime.CompilerServices;
+using glObjects;
 
-namespace SharpWoxel.src
+namespace SharpWoxel
 {
     public class Game : GameWindow
     {
-        private readonly float[] triangleVerticies = {
+        private readonly float[] verticies = {
+            -0.5f,  0.5f, 0.0f,
             -0.5f, -0.5f, 0.0f,
              0.5f, -0.5f, 0.0f,
-             0.0f,  0.5f, 0.0f
+             0.5f,  0.5f, 0.0f
         };
-        private readonly uint[] triangleIndicies = {
-            0, 1, 2
+        private readonly uint[] indicies = {
+            0, 1, 2,
+            2, 3, 0
         };
-        private int VAO = -1;
-        private int VBO = -1;
-        private int EBO = -1;
-        private Shader? shader;
+        // bottom left is 0,0 and top right is 1,1 in opengl
+        private readonly float[] texCords = {
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f
+
+        };
+        private VAO vao;
+        private VBO vbo;
+        private EBO ebo;
+        private Shader shader;
+        private VBO vboTexCords;
+        private Texture texture;
 
         public Game(int width, int height, string title)
             : base(GameWindowSettings.Default, new NativeWindowSettings() { Size = (width, height), Title = title })
         {
+            vao = new VAO();
+            vbo = new VBO();
+            ebo = new EBO();
+            vboTexCords = new VBO();
+            shader = new Shader("../../../shaders/basic.vert", "../../../shaders/basic.frag");
+            texture = Texture.LoadFromFile("../../../res/test.png");
         }
 
         protected override void OnLoad()
@@ -31,34 +49,31 @@ namespace SharpWoxel.src
             base.OnLoad();
 
             GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-            
-            // Bind VAO
-            VAO = GL.GenVertexArray();
-            GL.BindVertexArray(VAO);
 
-            // Create VBO
-            VBO = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, VBO); // You can have multiple Buffers if they are different types
-            // If you want multiple VBOs with the same type, you bind one then do a vertexAttribPointer to it, bind another one then vertexAttrib and repeat
-            GL.BufferData(BufferTarget.ArrayBuffer, triangleVerticies.Length * sizeof(float), triangleVerticies, BufferUsageHint.StaticDraw);
+            // Bind VAO
+            vao.Bind();
+
+            // add VBO
+            vbo.SetBufferData(verticies, BufferUsageHint.StaticDraw);
+
+            vboTexCords.SetBufferData(texCords, BufferUsageHint.StaticDraw);
+            vboTexCords.DefineVertexAttribPointer(1, 2, 2 * sizeof(float), 0);
 
             // Create EBO (an EBO can only be bound if a VAO is bound!)
-            EBO = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, EBO);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, triangleIndicies.Length * sizeof(uint), triangleIndicies, BufferUsageHint.StaticDraw);
+            ebo.SetElementBufferData(indicies, BufferUsageHint.StaticDraw);
 
             // VertexAttribPointer index is the index of the attribute in the shader
             // One VAO has multiple AttribPointers to multiple or the same VBO
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
-            GL.EnableVertexAttribArray(0); // Enable the attribute (by default they are all disabled)
+            vbo.DefineVertexAttribPointer(0, 3, 3 * sizeof(float), 0);
 
-            shader = new Shader("../../../shaders/basic.vert", "../../../shaders/basic.frag");
+
+            vao.Unbind();
         }
         protected override void OnUnload()
         {
             base.OnUnload();
 
-            shader?.Dispose();
+            shader.Dispose();
         }
 
         protected override void OnResize(ResizeEventArgs e)
@@ -76,10 +91,12 @@ namespace SharpWoxel.src
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
             // Render Code
-            shader?.Use();
-            GL.BindVertexArray(VAO);
+            shader.Use();
+            vao.Bind();
+            texture.Use(TextureUnit.Texture0);
             //GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
-            GL.DrawElements(BeginMode.Triangles, triangleIndicies.Length, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(BeginMode.Triangles, ebo.Size, DrawElementsType.UnsignedInt, 0);
+            vao.Unbind();
 
             SwapBuffers();
         }

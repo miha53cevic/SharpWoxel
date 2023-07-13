@@ -1,10 +1,11 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 
-namespace SharpWoxel.src
+namespace glObjects
 {
     class Shader : IDisposable
     {
-        private int Handle = -1;
+        private int _handle = -1;
         private bool disposedValue = false;
 
         public Shader(string vertexPath, string fragmentPath)
@@ -36,23 +37,53 @@ namespace SharpWoxel.src
                 Console.WriteLine(infoLog);
             }
 
-            Handle = GL.CreateProgram();
-            GL.AttachShader(Handle, vertexShader);
-            GL.AttachShader(Handle, fragmentShader);
-            GL.LinkProgram(Handle);
+            _handle = GL.CreateProgram();
+            GL.AttachShader(_handle, vertexShader);
+            GL.AttachShader(_handle, fragmentShader);
+            GL.LinkProgram(_handle);
 
-            GL.GetProgram(Handle, GetProgramParameterName.LinkStatus, out success);
+            GL.GetProgram(_handle, GetProgramParameterName.LinkStatus, out success);
 
             // Cleanup, since they are linked now to the shader program
-            GL.DetachShader(Handle, vertexShader);
-            GL.DetachShader(Handle, fragmentShader);
+            GL.DetachShader(_handle, vertexShader);
+            GL.DetachShader(_handle, fragmentShader);
             GL.DeleteShader(vertexShader);
             GL.DeleteShader(fragmentShader);
         }
 
         public void Use()
         {
-            GL.UseProgram(Handle);
+            GL.UseProgram(_handle);
+        }
+
+        public void SetMat4(int location, Matrix4 mat)
+        {
+            Use();
+            GL.UniformMatrix4(location, true, ref mat);
+        }
+
+        public void SetInt(int location, int data)
+        {
+            Use();
+            GL.Uniform1(location, data);
+        }
+
+        public void SetFloat(int location, int data)
+        {
+            Use();
+            GL.Uniform1(location, data);
+        }
+
+        public void SetVector3(int location, Vector3 data)
+        {
+            Use();
+            GL.Uniform3(location, data);
+        }
+
+        public void SetVector2(int location ,Vector2 data)
+        {
+            Use();
+            GL.Uniform2(location, data);
         }
 
         protected virtual void Dispose(bool disposing)
@@ -63,7 +94,7 @@ namespace SharpWoxel.src
                 // If the user called Dispose() on the object
                 if (disposing)
                 {
-                    GL.DeleteProgram(Handle);
+                    GL.DeleteProgram(_handle);
                 }
                 else Console.WriteLine("GPU Resource leak! Did you forget to call Dispose()?"); // If the deconstructor called Dispose()
 
