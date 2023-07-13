@@ -31,14 +31,15 @@ namespace SharpWoxel.src
             base.OnLoad();
 
             GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-
+            
             // Bind VAO
             VAO = GL.GenVertexArray();
             GL.BindVertexArray(VAO);
 
             // Create VBO
             VBO = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VBO); // You can have multiple Buffers if they are different types
+            // If you want multiple VBOs with the same type, you bind one then do a vertexAttribPointer to it, bind another one then vertexAttrib and repeat
             GL.BufferData(BufferTarget.ArrayBuffer, triangleVerticies.Length * sizeof(float), triangleVerticies, BufferUsageHint.StaticDraw);
 
             // Create EBO (an EBO can only be bound if a VAO is bound!)
