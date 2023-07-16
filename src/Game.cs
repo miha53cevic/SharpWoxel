@@ -3,6 +3,8 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using glObjects;
+using SharpWoxel.util;
+using OpenTK.Mathematics;
 
 namespace SharpWoxel
 {
@@ -32,6 +34,7 @@ namespace SharpWoxel
         private Shader shader;
         private VBO vboTexCords;
         private Texture texture;
+        private Camera camera;
 
         public Game(int width, int height, string title)
             : base(GameWindowSettings.Default, new NativeWindowSettings() { Size = (width, height), Title = title })
@@ -42,6 +45,7 @@ namespace SharpWoxel
             vboTexCords = new VBO();
             shader = new Shader("../../../shaders/basic.vert", "../../../shaders/basic.frag");
             texture = Texture.LoadFromFile("../../../res/test.png");
+            camera = new Camera(new Vector3(0, 0, 0), (float)width / (float)height);
         }
 
         protected override void OnLoad()
@@ -49,6 +53,8 @@ namespace SharpWoxel
             base.OnLoad();
 
             GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+
+            GL.Enable(EnableCap.DepthTest);
 
             // Bind VAO
             vao.Bind();
@@ -88,10 +94,16 @@ namespace SharpWoxel
         {
             base.OnRenderFrame(args);
 
-            GL.Clear(ClearBufferMask.ColorBufferBit);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             // Render Code
             shader.Use();
+            var model = Maths.CreateTransformationMatrix(
+                new Vector3(0, 0, -1),
+                new Vector3(0, 0, 0),
+                new Vector3(1, 1, 1)
+            );
+            shader.SetMatrix4(shader.GetUniformLocation("mvp"), Maths.CreateMVPMatrix(camera, model));
             vao.Bind();
             texture.Use(TextureUnit.Texture0);
             //GL.DrawArrays(PrimitiveType.Triangles, 0, 3);

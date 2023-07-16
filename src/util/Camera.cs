@@ -1,7 +1,7 @@
 ﻿using OpenTK.Mathematics;
 
-namespace SharpWoxel.src
-{
+namespace SharpWoxel.util
+{ 
     // Taken from:
     // https://github.com/opentk/LearnOpenTK/blob/master/Common/Camera.cs
     public class Camera

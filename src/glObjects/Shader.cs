@@ -56,7 +56,23 @@ namespace glObjects
             GL.UseProgram(_handle);
         }
 
-        public void SetMat4(int location, Matrix4 mat)
+        public int GetUniformLocation(string name)
+        {
+            if (_handle == -1)
+            {
+                Console.WriteLine("[Shader]: _handle is -1");
+            }
+
+            int location = GL.GetUniformLocation(_handle, name);
+            if (location == -1)
+            {
+                Console.WriteLine("[Shader]: Found no location for the uniform: {0}", name);
+            }
+
+            return location;
+        }
+
+        public void SetMatrix4(int location, Matrix4 mat)
         {
             Use();
             GL.UniformMatrix4(location, true, ref mat);
