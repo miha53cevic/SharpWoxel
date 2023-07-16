@@ -1,5 +1,4 @@
-﻿
-namespace SharpWoxel
+﻿namespace SharpWoxel
 {
     public class Program
     {

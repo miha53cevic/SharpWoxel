@@ -5,6 +5,8 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using glObjects;
 using SharpWoxel.util;
 using OpenTK.Mathematics;
+using SharpWoxel.entities;
+using SharpWoxel.Player;
 
 namespace SharpWoxel
 {
@@ -28,24 +30,18 @@ namespace SharpWoxel
             1.0f, 1.0f
 
         };
-        private VAO vao;
-        private VBO vbo;
-        private EBO ebo;
         private Shader shader;
-        private VBO vboTexCords;
-        private Texture texture;
         private Camera camera;
+        private SimpleEntity testEntity;
+        private PlayerController playerController;
 
         public Game(int width, int height, string title)
             : base(GameWindowSettings.Default, new NativeWindowSettings() { Size = (width, height), Title = title })
         {
-            vao = new VAO();
-            vbo = new VBO();
-            ebo = new EBO();
-            vboTexCords = new VBO();
             shader = new Shader("../../../shaders/basic.vert", "../../../shaders/basic.frag");
-            texture = Texture.LoadFromFile("../../../res/test.png");
+            testEntity = new SimpleEntity("../../../res/test.png");
             camera = new Camera(new Vector3(0, 0, 0), (float)width / (float)height);
+            playerController = new PlayerController(camera);
         }
 
         protected override void OnLoad()
@@ -55,25 +51,12 @@ namespace SharpWoxel
             GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
             GL.Enable(EnableCap.DepthTest);
+            GL.Enable(EnableCap.CullFace); // Cull faces (render only triangles that are counter-clockwise)
 
-            // Bind VAO
-            vao.Bind();
-
-            // add VBO
-            vbo.SetBufferData(verticies, BufferUsageHint.StaticDraw);
-
-            vboTexCords.SetBufferData(texCords, BufferUsageHint.StaticDraw);
-            vboTexCords.DefineVertexAttribPointer(1, 2, 2 * sizeof(float), 0);
-
-            // Create EBO (an EBO can only be bound if a VAO is bound!)
-            ebo.SetElementBufferData(indicies, BufferUsageHint.StaticDraw);
-
-            // VertexAttribPointer index is the index of the attribute in the shader
-            // One VAO has multiple AttribPointers to multiple or the same VBO
-            vbo.DefineVertexAttribPointer(0, 3, 3 * sizeof(float), 0);
-
-
-            vao.Unbind();
+            testEntity.SetVerticies(verticies, BufferUsageHint.StaticDraw);
+            testEntity.SetTextureCoords(texCords, BufferUsageHint.StaticDraw);
+            testEntity.SetIndicies(indicies, BufferUsageHint.StaticDraw);
+            testEntity.Position += (0, 0, -1);
         }
         protected override void OnUnload()
         {
@@ -93,22 +76,11 @@ namespace SharpWoxel
         protected override void OnRenderFrame(FrameEventArgs args)
         {
             base.OnRenderFrame(args);
-
+            
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             // Render Code
-            shader.Use();
-            var model = Maths.CreateTransformationMatrix(
-                new Vector3(0, 0, -1),
-                new Vector3(0, 0, 0),
-                new Vector3(1, 1, 1)
-            );
-            shader.SetMatrix4(shader.GetUniformLocation("mvp"), Maths.CreateMVPMatrix(camera, model));
-            vao.Bind();
-            texture.Use(TextureUnit.Texture0);
-            //GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
-            GL.DrawElements(BeginMode.Triangles, ebo.Size, DrawElementsType.UnsignedInt, 0);
-            vao.Unbind();
+            testEntity.Render(shader, playerController.camera);
 
             SwapBuffers();
         }
@@ -118,11 +90,25 @@ namespace SharpWoxel
         {
             base.OnUpdateFrame(args);
 
+            // Lock cursor (and hide it) to the screen if the window is in focus
+            if (IsFocused)
+            {
+                CursorState = CursorState.Grabbed;
+            }
+            else
+            {
+                CursorState = CursorState.Normal;
+                return; // exit function if window is not in focus
+            }
+
+            // Exit with escape
             var input = KeyboardState;
             if (input.IsKeyDown(Keys.Escape))
             {
                 Close();
             }
+
+            playerController.Update(args.Time, KeyboardState, MouseState);
         }
     }
 }
