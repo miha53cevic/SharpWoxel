@@ -1,5 +1,4 @@
 ﻿using SharpWoxel.util;
-using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace SharpWoxel.Player
@@ -49,8 +48,8 @@ namespace SharpWoxel.Player
             }
 
             // Mouse inputs
-            camera.Yaw -= mouseInput.Delta.X * _sensetivity;
-            camera.Pitch += mouseInput.Delta.Y * _sensetivity; 
+            camera.Yaw += mouseInput.Delta.X * _sensetivity;
+            camera.Pitch -= mouseInput.Delta.Y * _sensetivity; 
         }
     }
 }

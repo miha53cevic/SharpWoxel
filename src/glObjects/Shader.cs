@@ -75,7 +75,7 @@ namespace glObjects
         public void SetMatrix4(int location, Matrix4 mat)
         {
             Use();
-            GL.UniformMatrix4(location, true, ref mat);
+            GL.UniformMatrix4(location, false, ref mat);
         }
 
         public void SetInt(int location, int data)

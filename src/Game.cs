@@ -53,10 +53,10 @@ namespace SharpWoxel
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace); // Cull faces (render only triangles that are counter-clockwise)
 
-            testEntity.SetVerticies(verticies, BufferUsageHint.StaticDraw);
-            testEntity.SetTextureCoords(texCords, BufferUsageHint.StaticDraw);
-            testEntity.SetIndicies(indicies, BufferUsageHint.StaticDraw);
-            testEntity.Position += (0, 0, -1);
+            testEntity.SetVerticies(Cube.verticies, BufferUsageHint.StaticDraw);
+            testEntity.SetTextureCoords(Cube.textureCoordinates, BufferUsageHint.StaticDraw);
+            testEntity.SetIndicies(Cube.indicies, BufferUsageHint.StaticDraw);
+            testEntity.Position += (0, 0, -3);
         }
         protected override void OnUnload()
         {
