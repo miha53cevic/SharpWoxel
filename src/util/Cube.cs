@@ -42,35 +42,35 @@ namespace SharpWoxel.util
         };
 
         public static readonly float[] textureCoordinates = {
-            0f,0f,
-            0f,1f,
             1f,1f,
             1f,0f,
-
             0f,0f,
             0f,1f,
+
             1f,1f,
             1f,0f,
-
             0f,0f,
             0f,1f,
+
             1f,1f,
             1f,0f,
-
             0f,0f,
             0f,1f,
+
             1f,1f,
             1f,0f,
-
             0f,0f,
             0f,1f,
+
             1f,1f,
             1f,0f,
-
             0f,0f,
             0f,1f,
+
             1f,1f,
-            1f,0f
+            1f,0f,
+            0f,0f,
+            0f,1f
         };
 
         public static readonly uint[] indicies = {
