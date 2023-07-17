@@ -45,5 +45,11 @@ namespace SharpWoxel.util
             // Model * View * Projection
             return model * camera.GetViewMatrix() * camera.GetProjectionMatrix();
         }
+
+        public static int IndexFrom3D(int x, int y, int z, int ySize, int zSize)
+        {
+            // Index = ((x * YSIZE + y) * ZSIZE) + z;
+            return ((x * ySize + y) * zSize) + z;
+        }
     }
 }

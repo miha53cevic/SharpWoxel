@@ -6,30 +6,13 @@ using glObjects;
 using SharpWoxel.util;
 using OpenTK.Mathematics;
 using SharpWoxel.entities;
-using SharpWoxel.Player;
+using SharpWoxel.player;
 
 namespace SharpWoxel
 {
     public class Game : GameWindow
     {
-        private readonly float[] verticies = {
-            -0.5f,  0.5f, 0.0f,
-            -0.5f, -0.5f, 0.0f,
-             0.5f, -0.5f, 0.0f,
-             0.5f,  0.5f, 0.0f
-        };
-        private readonly uint[] indicies = {
-            0, 1, 2,
-            2, 3, 0
-        };
-        // bottom left is 0,0 and top right is 1,1 in opengl
-        private readonly float[] texCords = {
-            0.0f, 1.0f,
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f
-
-        };
+        private bool _wireframe = false;
         private Shader shader;
         private Camera camera;
         private SimpleEntity testEntity;
@@ -42,6 +25,14 @@ namespace SharpWoxel
             testEntity = new SimpleEntity("../../../res/test.png");
             camera = new Camera(new Vector3(0, 0, 0), (float)width / (float)height);
             playerController = new PlayerController(camera);
+        }
+
+        private void ToggleWireFrame()
+        {
+            _wireframe = !_wireframe;
+
+            if (_wireframe) GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+            else            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
         }
 
         protected override void OnLoad()
@@ -108,6 +99,11 @@ namespace SharpWoxel
                 Close();
             }
 
+            if (input.IsKeyPressed(Keys.Tab))
+            {
+                ToggleWireFrame();
+            }
+            
             playerController.Update(args.Time, KeyboardState, MouseState);
         }
     }

@@ -1,7 +1,7 @@
 ﻿using SharpWoxel.util;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
-namespace SharpWoxel.Player
+namespace SharpWoxel.player
 {
     class PlayerController
     {
