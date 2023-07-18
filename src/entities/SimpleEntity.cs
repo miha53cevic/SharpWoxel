@@ -27,12 +27,12 @@ namespace SharpWoxel.entities
             _ebo = new EBO();
             _vbos = new List<VBO>();
 
-            Position = new Vector3(0, 0, 0);
-            Rotation = new Vector3(0, 0, 0);
-            Scale = new Vector3(1, 1, 1);
+            Position = Vector3i.Zero;
+            Rotation = Vector3i.Zero;
+            Scale = Vector3i.One;
         }
 
-        public void SetVerticies(float[] data, BufferUsageHint usage)
+        public virtual void SetVerticies(float[] data, BufferUsageHint usage)
         {
             _vao.Bind();
             VBO vbo = new VBO();
@@ -47,7 +47,7 @@ namespace SharpWoxel.entities
             _loadedVerticies = true;
         }
 
-        public void SetIndicies(uint[] data, BufferUsageHint usage)
+        public virtual void SetIndicies(uint[] data, BufferUsageHint usage)
         {
             // Create EBO (an EBO can only be bound if a VAO is bound!)
             _vao.Bind();
@@ -57,7 +57,7 @@ namespace SharpWoxel.entities
             _loadedEBO = true;
         }
 
-        public void SetTextureCoords(float[] data, BufferUsageHint usage)
+        public virtual void SetTextureCoords(float[] data, BufferUsageHint usage)
         {
             _vao.Bind();
             VBO vbo = new VBO();

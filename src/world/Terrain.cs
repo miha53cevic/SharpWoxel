@@ -16,13 +16,14 @@ namespace SharpWoxel.world
             _chunks = new List<Chunk>();
 
             // Create chunks
-            for (int x = 0; x < size.X; x++)
+            for (int z = 0; z < size.Z; z++)
             {
                 for (int y = 0; y < size.Y; y++)
                 {
-                    for (int z = 0; z < size.Z; z++)
+                    for (int x = 0; x < size.X; x++)
                     {
-                        _chunks.Add(new Chunk(chunkSize));
+                        Vector3 position = chunkSize * (new Vector3i(x, y, z));
+                        _chunks.Add(new Chunk(position, chunkSize));
                     }
                 }
             }
@@ -30,7 +31,7 @@ namespace SharpWoxel.world
 
         public abstract void GenerateTerrain();
 
-        public int GetBlockGlobal(int x, int y, int z)
+        public Block GetBlockGlobal(int x, int y, int z)
         {
             // Convert to local block position
             int lx = x % _chunkSize.X;

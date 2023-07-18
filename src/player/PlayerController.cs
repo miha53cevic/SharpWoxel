@@ -5,51 +5,59 @@ namespace SharpWoxel.player
 {
     class PlayerController
     {
-        private float _playerSpeed = 10.0f;
-        private float _sensetivity = 0.25f;
-        public Camera camera { get; private set; }
+        public float PlayerSpeed { get; set; }
+        public float Sensetivity { get; set; }
+        public Camera Camera { get; private set; }
 
         public PlayerController(Camera camera)
         {
-            this.camera = camera;
+            
+            Camera = camera;
+            PlayerSpeed = 10.0f;
+            Sensetivity = 0.25f;
         }
 
-        public void Update(double deltaTime, KeyboardState keyInput, MouseState mouseInput)
+        private void HandleInput(double deltaTime, KeyboardState keyInput, MouseState mouseInput)
         {
             // Keyboard inputs
             if (keyInput.WasKeyDown(Keys.W))
             {
-                camera.Position += camera.Front * (float)deltaTime * _playerSpeed;
+                Camera.Position += Camera.Front * (float)deltaTime * PlayerSpeed;
             }
 
             if (keyInput.WasKeyDown(Keys.S))
             {
-                camera.Position -= camera.Front * (float)deltaTime * _playerSpeed;
+                Camera.Position -= Camera.Front * (float)deltaTime * PlayerSpeed;
             }
 
             if (keyInput.WasKeyDown(Keys.A))
             {
-                camera.Position -= camera.Right * (float)deltaTime * _playerSpeed;
+                Camera.Position -= Camera.Right * (float)deltaTime * PlayerSpeed;
             }
 
             if (keyInput.WasKeyDown(Keys.D))
             {
-                camera.Position += camera.Right * (float)deltaTime * _playerSpeed;
+                Camera.Position += Camera.Right * (float)deltaTime * PlayerSpeed;
             }
 
             if (keyInput.WasKeyDown(Keys.Space))
             {
-                camera.Position += camera.Up * (float)deltaTime * _playerSpeed;
+                Camera.Position += Camera.Up * (float)deltaTime * PlayerSpeed;
             }
 
             if (keyInput.WasKeyDown(Keys.LeftControl))
             {
-                camera.Position -= camera.Up * (float)deltaTime * _playerSpeed;
+                Camera.Position -= Camera.Up * (float)deltaTime * PlayerSpeed;
             }
 
             // Mouse inputs
-            camera.Yaw += mouseInput.Delta.X * _sensetivity;
-            camera.Pitch -= mouseInput.Delta.Y * _sensetivity; 
+            Camera.Yaw += mouseInput.Delta.X * Sensetivity;
+            Camera.Pitch -= mouseInput.Delta.Y * Sensetivity;
+        }
+
+        public void Update(double deltaTime, KeyboardState keyInput, MouseState mouseInput)
+        {
+            HandleInput(deltaTime, keyInput, mouseInput);
         }
     }
 }

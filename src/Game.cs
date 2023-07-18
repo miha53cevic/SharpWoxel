@@ -7,6 +7,7 @@ using SharpWoxel.util;
 using OpenTK.Mathematics;
 using SharpWoxel.entities;
 using SharpWoxel.player;
+using SharpWoxel.world;
 
 namespace SharpWoxel
 {
@@ -71,7 +72,7 @@ namespace SharpWoxel
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             // Render Code
-            testEntity.Render(shader, playerController.camera);
+            testEntity.Render(shader, playerController.Camera);
 
             SwapBuffers();
         }
