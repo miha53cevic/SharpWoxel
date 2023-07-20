@@ -7,7 +7,7 @@ using SharpWoxel.util;
 using OpenTK.Mathematics;
 using SharpWoxel.entities;
 using SharpWoxel.player;
-using SharpWoxel.world;
+using SharpWoxel.world.terrain;
 
 namespace SharpWoxel
 {
@@ -18,14 +18,16 @@ namespace SharpWoxel
         private Camera camera;
         private SimpleEntity testEntity;
         private PlayerController playerController;
+        private Terrain terrain;
 
         public Game(int width, int height, string title)
             : base(GameWindowSettings.Default, new NativeWindowSettings() { Size = (width, height), Title = title })
         {
             shader = new Shader("../../../shaders/basic.vert", "../../../shaders/basic.frag");
-            testEntity = new SimpleEntity("../../../res/test.png");
             camera = new Camera(new Vector3(0, 0, 0), (float)width / (float)height);
+            testEntity = new SimpleEntity("../../../res/test.png");
             playerController = new PlayerController(camera);
+            terrain = new FlatTerrain(new Vector3i(1, 1, 1), new Vector3i(32, 32, 32));
         }
 
         private void ToggleWireFrame()
@@ -49,6 +51,7 @@ namespace SharpWoxel
             testEntity.SetTextureCoords(Cube.textureCoordinates, BufferUsageHint.StaticDraw);
             testEntity.SetIndicies(Cube.indicies, BufferUsageHint.StaticDraw);
             testEntity.Position += (0, 0, -3);
+            terrain.GenerateTerrain();
         }
         protected override void OnUnload()
         {
@@ -68,11 +71,14 @@ namespace SharpWoxel
         protected override void OnRenderFrame(FrameEventArgs args)
         {
             base.OnRenderFrame(args);
+
+            Title = string.Format("Woxel - FPS: {0:0.00}", 1.0f / args.Time);
             
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             // Render Code
             testEntity.Render(shader, playerController.Camera);
+            terrain.Render(shader, playerController.Camera);
 
             SwapBuffers();
         }

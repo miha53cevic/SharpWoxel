@@ -87,5 +87,82 @@ namespace SharpWoxel.util
             20,21,23,
             23,21,22
         };
+
+        public enum Face
+        {
+            TOP, BOTTOM, LEFT, RIGHT, BACK, FRONT
+        }
+
+        public class CubeFace
+        {
+            public static float[] GetCubeFace(Face face)
+            {
+                switch (face)
+                {
+                    case Face.TOP:
+                        return new float[]
+                        {
+                            0,1,0, 
+                            0,1,1, 
+                            1,1,1,
+                            1,1,0
+                        };
+                    case Face.BOTTOM:
+                        return new float[]
+                        {
+                            0,0,1,
+                            0,0,0,
+                            1,0,0,
+                            1,0,1
+                        };
+                    case Face.LEFT:
+                        return new float[]
+                        {
+                            0,1,0,
+                            0,0,0,
+                            0,0,1,
+                            0,1,1
+                        };
+                    case Face.RIGHT:
+                        return new float[]
+                        {
+                            1,1,1,
+                            1,0,1,
+                            1,0,0,
+                            1,1,0
+                        };
+                    case Face.FRONT:
+                        return new float[]
+                        {
+                            0,1,1,
+                            0,0,1,
+                            1,0,1,
+                            1,1,1
+                        };
+                    case Face.BACK:
+                        return new float[]
+                        {
+                            1,1,0,
+                            1,0,0,
+                            0,0,0,
+                            0,1,0
+                        };
+                }
+
+                throw new Exception("Invalid Face for CubeFace given");
+            }
+
+            public static uint[] indicies = {
+                0, 1, 3,
+                3, 1, 2
+            };
+
+            public static float[] textureCoordinates = {
+                0.0f, 0.0f,
+                0.0f, 1.0f,
+                1.0f, 1.0f,
+                1.0f, 0.0f
+            };
+        }
     }
 }

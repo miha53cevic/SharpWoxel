@@ -1,13 +1,15 @@
 ﻿using OpenTK.Mathematics;
+using SharpWoxel.world.blocks;
 using SharpWoxel.util;
+using glObjects;
 
-namespace SharpWoxel.world
+namespace SharpWoxel.world.terrain
 {
     abstract class Terrain
     {
-        private Vector3i _terrainSize; // the size of the world
-        private Vector3i _chunkSize;
-        private List<Chunk> _chunks;
+        protected Vector3i _terrainSize; // the size of the world
+        protected Vector3i _chunkSize;
+        protected List<Chunk> _chunks;
 
         public Terrain(Vector3i size, Vector3i chunkSize)
         {
@@ -22,7 +24,7 @@ namespace SharpWoxel.world
                 {
                     for (int x = 0; x < size.X; x++)
                     {
-                        Vector3 position = chunkSize * (new Vector3i(x, y, z));
+                        Vector3 position = chunkSize * new Vector3i(x, y, z);
                         _chunks.Add(new Chunk(position, chunkSize));
                     }
                 }
@@ -31,7 +33,15 @@ namespace SharpWoxel.world
 
         public abstract void GenerateTerrain();
 
-        public Block GetBlockGlobal(int x, int y, int z)
+        public void Render(Shader shader, Camera camera)
+        {
+            foreach (var chunk in _chunks)
+            {
+                chunk.Entity.Render(shader, camera);
+            }
+        }
+
+        public IBlock GetBlockGlobal(int x, int y, int z)
         {
             // Convert to local block position
             int lx = x % _chunkSize.X;
@@ -64,7 +74,7 @@ namespace SharpWoxel.world
             return _chunks[Maths.IndexFrom3D(cx, cy, cz, _terrainSize.Y, _terrainSize.Z)];
         }
 
-        public Chunk GetChunkFromLocal(int x, int y, int z) 
+        public Chunk GetChunkFromLocal(int x, int y, int z)
         {
             if (IsChunkOutOfBounds(x, y, z))
                 throw new Exception(string.Format("[Terrain::GetChunkFromLocal]: Chunk ({0},{1},{2}) is out of bounds", x, y, z));

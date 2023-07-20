@@ -27,6 +27,10 @@ namespace glObjects
             float xMax = (xMin + _individualTextureSize) - _pixelSize;
             float yMax = (yMin + _individualTextureSize) - _pixelSize;
 
+            // In opengl texture coordinates are like in math, bottom left is (0,0) and top right is (1,1)
+            yMin = 1 - yMin;
+            yMax = 1 - yMax;
+
             // A texture has 4 vec2 coordinates (4 * 2 = 8 values)
             float[] coords = { xMin, yMin, xMin, yMax, xMax, yMax, xMax, yMin };
 
