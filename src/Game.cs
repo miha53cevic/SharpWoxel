@@ -8,6 +8,7 @@ using OpenTK.Mathematics;
 using SharpWoxel.entities;
 using SharpWoxel.player;
 using SharpWoxel.world.terrain;
+using SharpWoxel.world;
 
 namespace SharpWoxel
 {
@@ -18,7 +19,7 @@ namespace SharpWoxel
         private Camera camera;
         private SimpleEntity testEntity;
         private PlayerController playerController;
-        private Terrain terrain;
+        private WorldModel world;
 
         public Game(int width, int height, string title)
             : base(GameWindowSettings.Default, new NativeWindowSettings() { Size = (width, height), Title = title })
@@ -27,7 +28,9 @@ namespace SharpWoxel
             camera = new Camera(new Vector3(0, 0, 0), (float)width / (float)height);
             testEntity = new SimpleEntity("../../../res/test.png");
             playerController = new PlayerController(camera);
-            terrain = new FlatTerrain(new Vector3i(2, 1, 2), new Vector3i(32, 32, 32));
+            Terrain flatTerrain = new FlatTerrain(new Vector3i(2, 1, 2), new Vector3i(32, 32, 32));
+            Terrain testTerrain = new TestTerrain(new Vector3i(3, 3, 3), new Vector3i(32, 32, 32));
+            world = new WorldModel(testTerrain);
         }
 
         private void ToggleWireFrame()
@@ -47,11 +50,13 @@ namespace SharpWoxel
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace); // Cull faces (render only triangles that are counter-clockwise)
 
+            playerController.Camera.Position = (1.5f * 32.0f, 1.5f * 32.0f, 1.5f * 32.0f);
             testEntity.SetVerticies(Cube.verticies, BufferUsageHint.StaticDraw);
             testEntity.SetTextureCoords(Cube.textureCoordinates, BufferUsageHint.StaticDraw);
             testEntity.SetIndicies(Cube.indicies, BufferUsageHint.StaticDraw);
+            testEntity.Position = playerController.Camera.Position;
             testEntity.Position += (0, 0, -3);
-            terrain.GenerateTerrain();
+            world.GenerateWorld();
         }
         protected override void OnUnload()
         {
@@ -78,7 +83,7 @@ namespace SharpWoxel
 
             // Render Code
             testEntity.Render(shader, playerController.Camera);
-            terrain.Render(shader, playerController.Camera);
+            world.Render(shader, playerController.Camera);
 
             SwapBuffers();
         }

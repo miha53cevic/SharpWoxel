@@ -2,7 +2,6 @@
 using SharpWoxel.world.blocks;
 using SharpWoxel.util;
 using glObjects;
-using System.Reflection.Metadata;
 
 namespace SharpWoxel.world.terrain
 {
@@ -33,11 +32,11 @@ namespace SharpWoxel.world.terrain
             }
 
             // Set each chunks neighbours
-            for (int z = 0; z < size.Z; z++)
+            for (int x = 0; x < size.X; x++)
             {
                 for (int y = 0; y < size.Y; y++)
                 {
-                    for (int x = 0; x < size.X; x++)
+                    for (int z = 0; z < size.Z; z++)
                     {
                         bool left = false, right = false, front = false, back = false, top = false, bottom = false; // hasNeighbouring chunk
                         if (x != 0) left = true;

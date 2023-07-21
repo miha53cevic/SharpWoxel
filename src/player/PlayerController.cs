@@ -20,35 +20,41 @@ namespace SharpWoxel.player
         private void HandleInput(double deltaTime, KeyboardState keyInput, MouseState mouseInput)
         {
             // Keyboard inputs
-            if (keyInput.WasKeyDown(Keys.W))
+            if (keyInput.IsKeyDown(Keys.W))
             {
                 Camera.Position += Camera.Front * (float)deltaTime * PlayerSpeed;
             }
 
-            if (keyInput.WasKeyDown(Keys.S))
+            if (keyInput.IsKeyDown(Keys.S))
             {
                 Camera.Position -= Camera.Front * (float)deltaTime * PlayerSpeed;
             }
 
-            if (keyInput.WasKeyDown(Keys.A))
+            if (keyInput.IsKeyDown(Keys.A))
             {
                 Camera.Position -= Camera.Right * (float)deltaTime * PlayerSpeed;
             }
 
-            if (keyInput.WasKeyDown(Keys.D))
+            if (keyInput.IsKeyDown(Keys.D))
             {
                 Camera.Position += Camera.Right * (float)deltaTime * PlayerSpeed;
             }
 
-            if (keyInput.WasKeyDown(Keys.Space))
+            if (keyInput.IsKeyDown(Keys.Space))
             {
                 Camera.Position += Camera.Up * (float)deltaTime * PlayerSpeed;
             }
 
-            if (keyInput.WasKeyDown(Keys.LeftControl))
+            if (keyInput.IsKeyDown(Keys.LeftControl))
             {
                 Camera.Position -= Camera.Up * (float)deltaTime * PlayerSpeed;
             }
+
+            if (keyInput.IsKeyDown(Keys.LeftShift))
+            {
+                PlayerSpeed = 20.0f;
+            }
+            else PlayerSpeed = 10.0f;
 
             // Mouse inputs
             Camera.Yaw += mouseInput.Delta.X * Sensetivity;

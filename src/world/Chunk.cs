@@ -35,11 +35,11 @@ namespace SharpWoxel.world
             _neighbours = new Chunk[_neighbourCount];
 
             // Set chunk to be air by default
-            for (int z = 0; z < chunkSize.Z; z++)
+            for (int x = 0; x < chunkSize.X; x++)
             {
                 for (int y = 0; y < chunkSize.Y; y++)
                 {
-                    for (int x = 0; x < chunkSize.X; x++)
+                    for (int z = 0; z < chunkSize.Z; z++)
                     {
                         _blocks[x, y, z] = new AirBlock();
                     }
@@ -110,11 +110,11 @@ namespace SharpWoxel.world
                 indicies += 4;
             }
             
-            for (int z = 0; z < _chunkSize.Z; z++)
+            for (int x = 0; x < _chunkSize.X; x++)
             {
                 for (int y = 0; y < _chunkSize.Y; y++)
                 {
-                    for (int x = 0; x < _chunkSize.X; x++)
+                    for (int z = 0; z < _chunkSize.Z; z++)
                     {
                         // Skip if air block
                         if (_blocks[x, y, z].IsAir())
@@ -188,7 +188,7 @@ namespace SharpWoxel.world
 
         public override string ToString()
         {
-            return string.Format("Chunk({0})", this.GetHashCode());
+            return string.Format("Chunk({0}, {1})", this.GetHashCode(), Entity.Position);
         }
     }
 }
