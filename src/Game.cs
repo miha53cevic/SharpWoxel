@@ -1,36 +1,21 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using glObjects;
-using SharpWoxel.util;
-using OpenTK.Mathematics;
-using SharpWoxel.entities;
-using SharpWoxel.player;
-using SharpWoxel.world.terrain;
-using SharpWoxel.world;
+using SharpWoxel.states;
 
 namespace SharpWoxel
 {
-    public class Game : GameWindow
+    class Game : GameWindow
     {
         private bool _wireframe = false;
-        private Shader shader;
-        private Camera camera;
-        private SimpleEntity testEntity;
-        private PlayerController playerController;
-        private WorldModel world;
+        private StateManager _stateManager;
 
         public Game(int width, int height, string title)
             : base(GameWindowSettings.Default, new NativeWindowSettings() { Size = (width, height), Title = title })
         {
-            shader = new Shader("../../../shaders/basic.vert", "../../../shaders/basic.frag");
-            camera = new Camera(new Vector3(0, 0, 0), (float)width / (float)height);
-            testEntity = new SimpleEntity("../../../res/test.png");
-            playerController = new PlayerController(camera);
-            Terrain flatTerrain = new FlatTerrain(new Vector3i(2, 1, 2), new Vector3i(32, 32, 32));
-            Terrain testTerrain = new TestTerrain(new Vector3i(3, 3, 3), new Vector3i(32, 32, 32));
-            world = new WorldModel(testTerrain);
+            _stateManager = new StateManager();
         }
 
         private void ToggleWireFrame()
@@ -39,6 +24,20 @@ namespace SharpWoxel
 
             if (_wireframe) GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
             else            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+        }
+
+        public void SetClearColour(int r, int g, int b, int a)
+        {
+            float red = (float)r / 255.0f;
+            float green = (float)g / 255.0f;
+            float blue = (float)b / 255.0f;
+            float alpha = (float)a / 255.0f;
+            GL.ClearColor(red, green, blue, alpha);
+        }
+
+        public void ResetClearColour()
+        {
+            GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         }
 
         protected override void OnLoad()
@@ -50,19 +49,11 @@ namespace SharpWoxel
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace); // Cull faces (render only triangles that are counter-clockwise)
 
-            playerController.Camera.Position = (1.5f * 32.0f, 1.5f * 32.0f, 1.5f * 32.0f);
-            testEntity.SetVerticies(Cube.verticies, BufferUsageHint.StaticDraw);
-            testEntity.SetTextureCoords(Cube.textureCoordinates, BufferUsageHint.StaticDraw);
-            testEntity.SetIndicies(Cube.indicies, BufferUsageHint.StaticDraw);
-            testEntity.Position = playerController.Camera.Position;
-            testEntity.Position += (0, 0, -3);
-            world.GenerateWorld();
+            _stateManager.Add(new PlayingState(this));
         }
         protected override void OnUnload()
         {
             base.OnUnload();
-
-            shader.Dispose();
         }
 
         protected override void OnResize(ResizeEventArgs e)
@@ -82,8 +73,7 @@ namespace SharpWoxel
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             // Render Code
-            testEntity.Render(shader, playerController.Camera);
-            world.Render(shader, playerController.Camera);
+            _stateManager.GetCurrentState().OnRenderFrame(args.Time);
 
             SwapBuffers();
         }
@@ -93,30 +83,15 @@ namespace SharpWoxel
         {
             base.OnUpdateFrame(args);
 
-            // Lock cursor (and hide it) to the screen if the window is in focus
-            if (IsFocused)
-            {
-                CursorState = CursorState.Grabbed;
-            }
-            else
-            {
-                CursorState = CursorState.Normal;
-                return; // exit function if window is not in focus
-            }
-
-            // Exit with escape
             var input = KeyboardState;
-            if (input.IsKeyDown(Keys.Escape))
-            {
-                Close();
-            }
-
             if (input.IsKeyPressed(Keys.Tab))
             {
                 ToggleWireFrame();
             }
-            
-            playerController.Update(args.Time, KeyboardState, MouseState);
+
+            _stateManager.GetCurrentState().OnUpdateFrame(args.Time);
         }
+
+        public StateManager GetStateManager() { return _stateManager; }
     }
 }
