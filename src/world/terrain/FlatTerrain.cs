@@ -10,7 +10,7 @@ namespace SharpWoxel.world.terrain
         {
         }
 
-        public override void GenerateTerrain()
+        protected override void Generate()
         {
             int maxAmp = _chunkSize.Y / 2;
 
@@ -37,7 +37,9 @@ namespace SharpWoxel.world.terrain
                 chunk.SetBlockLocal(0, 1, 1, new DirtBlock());
                 chunk.SetBlockLocal(0, 1, 3, new LeafBlock());
                 chunk.SetBlockLocal(0, 1, 4, new PlankBlock());
-                chunk.BuildMesh();
+
+                // chunk.BuildMesh(); Don't do this, only build meshes after all the chunks blocks have been set in every chunk
+                // chunk.BuildMesh() is called in GenerateTerrain() after the Generate() function call which should set chunk blocks
             }
         }
     }

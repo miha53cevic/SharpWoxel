@@ -77,6 +77,15 @@ namespace SharpWoxel.world
             var temp_indicies = new List<uint>();
             uint indicies = 0;
 
+            /*int i = 0;
+            foreach (var n in _neighbours)
+            {
+                Console.WriteLine(string.Format("{0}: {1}", (NeighbourDirection)i, n));
+                i++;
+            }
+            Console.WriteLine(Entity.Position);
+            Console.WriteLine(this);*/
+
             void CreateCubeFace(Cube.Face face, int x, int y, int z)
             {
                 var faceVerticies = Cube.CubeFace.GetCubeFace(face);
@@ -107,7 +116,11 @@ namespace SharpWoxel.world
                 {
                     for (int x = 0; x < _chunkSize.X; x++)
                     {
-                        // Check for possible neighbours
+                        // Skip if air block
+                        if (_blocks[x, y, z].IsAir())
+                            continue;
+
+                        // Check for possible block neighbours
                         bool left = false, right = false, front = false, back = false, top = false, bottom = false;
                         if (x != 0) left = true;
                         if (y != 0) bottom = true;
@@ -116,9 +129,7 @@ namespace SharpWoxel.world
                         if (y != _chunkSize.Y - 1) top = true;
                         if (z != _chunkSize.Z - 1) front = true;
 
-                        if (_blocks[x, y, z].IsAir())
-                            continue;
-
+                        // Create cube face if the neighbouring block is air
                         if (left)
                             if (_blocks[x - 1, y, z].IsAir()) CreateCubeFace(Cube.Face.LEFT, x, y, z);
                         if (right)
@@ -131,6 +142,20 @@ namespace SharpWoxel.world
                             if (_blocks[x, y, z - 1].IsAir()) CreateCubeFace(Cube.Face.BACK, x, y, z);
                         if (front)
                             if (_blocks[x, y, z + 1].IsAir()) CreateCubeFace(Cube.Face.FRONT, x, y, z);
+
+                        // Check 1 block width with neighbouring chunks, for the outer chunk blocks
+                        if (!left && _neighbours[(int)NeighbourDirection.WEST] != null)
+                            if (_neighbours[(int)NeighbourDirection.WEST].GetBlockLocal(_chunkSize.X - 1, y, z).IsAir()) CreateCubeFace(Cube.Face.LEFT, x, y, z);
+                        if (!right && _neighbours[(int)NeighbourDirection.EAST] != null)
+                            if (_neighbours[(int)NeighbourDirection.EAST].GetBlockLocal(0, y, z).IsAir()) CreateCubeFace(Cube.Face.RIGHT, x, y, z);
+                        if (!bottom && _neighbours[(int)NeighbourDirection.BELOW] != null)
+                            if (_neighbours[(int)NeighbourDirection.BELOW].GetBlockLocal(x, _chunkSize.Y - 1, z).IsAir()) CreateCubeFace(Cube.Face.BOTTOM, x, y, z);
+                        if (!top && _neighbours[(int)NeighbourDirection.ABOVE] != null)
+                            if (_neighbours[(int)NeighbourDirection.ABOVE].GetBlockLocal(x, 0, z).IsAir()) CreateCubeFace(Cube.Face.TOP, x, y, z);
+                        if (!back && _neighbours[(int)NeighbourDirection.NORTH] != null)
+                            if (_neighbours[(int)NeighbourDirection.NORTH].GetBlockLocal(x, y, _chunkSize.Z - 1).IsAir()) CreateCubeFace(Cube.Face.BACK, x, y, z);
+                        if (!front && _neighbours[(int)NeighbourDirection.SOUTH] != null)
+                            if (_neighbours[(int)NeighbourDirection.SOUTH].GetBlockLocal(x, y, 0).IsAir()) CreateCubeFace(Cube.Face.FRONT, x, y, z);
                     }
                 }
             }
@@ -139,7 +164,7 @@ namespace SharpWoxel.world
             Entity.SetIndicies(temp_indicies.ToArray(), BufferUsageHint.DynamicDraw);
             Entity.SetTextureCoords(temp_textureCoords.ToArray(), BufferUsageHint.DynamicDraw);
 
-            Console.WriteLine(String.Format("Created chunk with: verticies({0}), indicies({1}), textureCoords({2})", temp_verticies.Count, temp_indicies.Count, temp_textureCoords.Count));
+            Console.WriteLine(string.Format("Created {0} with: verticies({1}), indicies({2}), textureCoords({3})", this, temp_verticies.Count, temp_indicies.Count, temp_textureCoords.Count));
         }
 
         public void RebuildMesh()
@@ -159,6 +184,11 @@ namespace SharpWoxel.world
             {
                 neighbour?.BuildMesh(); // vazno da NIJE rebuild onda je rekurzivno zvanje
             }
+        }
+
+        public override string ToString()
+        {
+            return string.Format("Chunk({0})", this.GetHashCode());
         }
     }
 }

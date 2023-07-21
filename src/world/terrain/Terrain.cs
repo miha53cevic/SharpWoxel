@@ -2,6 +2,7 @@
 using SharpWoxel.world.blocks;
 using SharpWoxel.util;
 using glObjects;
+using System.Reflection.Metadata;
 
 namespace SharpWoxel.world.terrain
 {
@@ -13,25 +14,70 @@ namespace SharpWoxel.world.terrain
 
         public Terrain(Vector3i size, Vector3i chunkSize)
         {
-            _terrainSize = size;
+            _terrainSize = size; // number of chunks
             _chunkSize = chunkSize;
             _chunks = new List<Chunk>();
 
             // Create chunks
+            // Bitan redosljed za IndexFrom3D, mora biti x,y,z for loop order
+            for (int x = 0; x < size.X; x++)
+            {
+                for (int y = 0; y < size.Y; y++)
+                {
+                    for (int z = 0; z < size.Z; z++)
+                    {
+                        Vector3 position = new Vector3i(chunkSize.X * x, chunkSize.Y * y, chunkSize.Z * z);
+                        _chunks.Add(new Chunk(position, chunkSize));
+                    }
+                }
+            }
+
+            // Set each chunks neighbours
             for (int z = 0; z < size.Z; z++)
             {
                 for (int y = 0; y < size.Y; y++)
                 {
                     for (int x = 0; x < size.X; x++)
                     {
-                        Vector3 position = chunkSize * new Vector3i(x, y, z);
-                        _chunks.Add(new Chunk(position, chunkSize));
+                        bool left = false, right = false, front = false, back = false, top = false, bottom = false; // hasNeighbouring chunk
+                        if (x != 0) left = true;
+                        if (y != 0) bottom = true;
+                        if (z != 0) back = true;
+                        if (x != size.X - 1) right = true;
+                        if (y != size.Y - 1) top = true;
+                        if (z != size.Z - 1) front = true;
+
+                        // boolean values tell us if a given chunk can have a neighbour on that side and if it can
+                        // we add a reference to that neighbour to the given chunk
+                        if (left)
+                            GetChunkFromLocal(x, y, z).SetNeighbour(NeighbourDirection.WEST, GetChunkFromLocal(x - 1, y, z));
+                        if (right)
+                            GetChunkFromLocal(x, y, z).SetNeighbour(NeighbourDirection.EAST, GetChunkFromLocal(x + 1, y, z));
+                        if (back)
+                            GetChunkFromLocal(x, y, z).SetNeighbour(NeighbourDirection.NORTH, GetChunkFromLocal(x, y, z - 1));
+                        if (front)
+                            GetChunkFromLocal(x, y, z).SetNeighbour(NeighbourDirection.SOUTH, GetChunkFromLocal(x, y, z + 1));
+                        if (top)
+                            GetChunkFromLocal(x, y, z).SetNeighbour(NeighbourDirection.ABOVE, GetChunkFromLocal(x, y + 1, z));
+                        if (bottom)
+                            GetChunkFromLocal(x, y, z).SetNeighbour(NeighbourDirection.BELOW, GetChunkFromLocal(x, y - 1, z));
                     }
                 }
             }
         }
 
-        public abstract void GenerateTerrain();
+        // Fill out chunk blocks, chunk.BuildMesh() is called after this function in GenerateTerrain()
+        protected abstract void Generate();
+
+        // okvirna metoda
+        public virtual void GenerateTerrain()
+        {
+            Generate();
+            foreach (var chunk in _chunks)
+            {
+                chunk.BuildMesh();
+            }
+        }
 
         public void Render(Shader shader, Camera camera)
         {

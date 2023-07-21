@@ -27,7 +27,7 @@ namespace SharpWoxel
             camera = new Camera(new Vector3(0, 0, 0), (float)width / (float)height);
             testEntity = new SimpleEntity("../../../res/test.png");
             playerController = new PlayerController(camera);
-            terrain = new FlatTerrain(new Vector3i(1, 1, 1), new Vector3i(32, 32, 32));
+            terrain = new FlatTerrain(new Vector3i(2, 1, 2), new Vector3i(32, 32, 32));
         }
 
         private void ToggleWireFrame()
@@ -72,7 +72,7 @@ namespace SharpWoxel
         {
             base.OnRenderFrame(args);
 
-            Title = string.Format("Woxel - FPS: {0:0.00}", 1.0f / args.Time);
+            Title = string.Format("SharpWoxel - FPS: {0:0.00}", 1.0f / args.Time);
             
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
