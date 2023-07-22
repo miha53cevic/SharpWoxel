@@ -1,4 +1,4 @@
-#version 330 core
+#version 330
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec2 aTexCoord;
 
@@ -9,5 +9,5 @@ uniform mat4 mvp;
 void main(void)
 {
     texCoord = aTexCoord;
-    gl_Position = mvp * vec4(aPosition, 1.0);
+    gl_Position = vec4(aPosition, 1.0) * mvp; // openTK is row-based so you multiply inverse
 }

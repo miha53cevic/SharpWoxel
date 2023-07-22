@@ -26,7 +26,7 @@ namespace SharpWoxel.world
             _listeners.Remove(listener);
         }
 
-        public void notify()
+        public void Notify()
         {
             foreach (var listener in _listeners)
             {

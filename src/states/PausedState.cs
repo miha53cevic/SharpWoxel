@@ -1,14 +1,21 @@
-﻿
+﻿using glObjects;
+using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using SharpWoxel.gui;
+using SharpWoxel.util;
 
 namespace SharpWoxel.states
 {
     class PausedState : State
     {
+        private Texture _buttonTexture;
+
         public PausedState(Game game) 
             : base(game)
         {
+            _buttonTexture = Texture.LoadFromFile("../../../res/test.png");
         }
 
         public override void OnExit()
@@ -17,6 +24,10 @@ namespace SharpWoxel.states
 
         public override void OnRenderFrame(double deltaTime)
         {
+            _buttonTexture.Use(TextureUnit.Texture0);
+            var size = new Vector2(200, 200);
+            var position = new Vector2(_gameRef.RenderResolution.X / 2 - (size.X / 2), _gameRef.RenderResolution.Y / 2 - (size.Y / 2));
+            GUI.GetInstance().Rectangle.Render(ShaderLoader.GetInstance().GetShader("gui"), position, size);
         }
 
         public override void OnUpdateFrame(double deltaTime)
@@ -24,7 +35,7 @@ namespace SharpWoxel.states
             var input = _gameRef.KeyboardState;
             if (input.IsKeyPressed(Keys.Escape))
             {
-                _gameRef.GetStateManager().Pop();
+                StateManager.GetInstance().Pop();
             }
         }
 

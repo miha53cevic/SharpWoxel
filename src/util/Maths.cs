@@ -6,12 +6,14 @@ namespace SharpWoxel.util
     {
         public static Matrix4 CreateTransformationMatrix(Vector3 translation, Vector3 rotation, Vector3 scale)
         {
+            // OpenTK je obrnut opet radi Row-Based, ide scale, rotation, translation
             Matrix4 mat = Matrix4.Identity;
-            mat *= Matrix4.CreateTranslation(translation);
+            mat *= Matrix4.CreateScale(scale);
             mat *= Matrix4.CreateRotationX((float)MathHelper.DegreesToRadians(rotation.X));
             mat *= Matrix4.CreateRotationY((float)MathHelper.DegreesToRadians(rotation.Y));
             mat *= Matrix4.CreateRotationZ((float)MathHelper.DegreesToRadians(rotation.Z));
-            mat *= Matrix4.CreateScale(scale);
+            mat *= Matrix4.CreateTranslation(translation);
+
             return mat;
         }
 
@@ -41,9 +43,11 @@ namespace SharpWoxel.util
         public static Matrix4 CreateMVPMatrix(Camera camera, Matrix4 model)
         {
             // MVP = Projection * View * Model(transformation matrix) ako je column based (opengl)
-            // OpenTK je row based pa mora biti transposed unutar glUniformMatrix4() i mnozi se
+            // OpenTK je row based pa mora biti transposed unutar glUniformMatrix4() i prvo transponiraj svaku pa mnozi
             // Model * View * Projection
-            return model * camera.GetViewMatrix() * camera.GetProjectionMatrix();
+            var view = camera.GetViewMatrix();
+            var projection = camera.GetProjectionMatrix();
+            return model * view * projection;
         }
 
         public static int IndexFrom3D(int x, int y, int z, int ySize, int zSize)

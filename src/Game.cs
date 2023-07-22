@@ -1,20 +1,24 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using SharpWoxel.gui;
 using SharpWoxel.states;
+using SharpWoxel.util;
 
 namespace SharpWoxel
 {
     class Game : GameWindow
     {
         private bool _wireframe = false;
-        private StateManager _stateManager;
+        
+        public Vector2i RenderResolution;
 
         public Game(int width, int height, string title)
             : base(GameWindowSettings.Default, new NativeWindowSettings() { Size = (width, height), Title = title })
         {
-            _stateManager = new StateManager();
+            RenderResolution = new Vector2i(width, height);
         }
 
         private void ToggleWireFrame()
@@ -43,11 +47,20 @@ namespace SharpWoxel
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace); // Cull faces (render only triangles that are counter-clockwise)
 
-            _stateManager.Add(new PlayingState(this));
+            GUI.Init(RenderResolution.X, RenderResolution.Y);
+            ShaderLoader.GetInstance().Load("../../../shaders/basic");
+            ShaderLoader.GetInstance().Load("../../../shaders/gui");
+
+            StateManager.GetInstance().Add(new PlayingState(this));
         }
         protected override void OnUnload()
         {
             base.OnUnload();
+
+            // Dispose of all loaded shaders
+            ShaderLoader.GetInstance().Destroy();
+            // Clear all states
+            StateManager.GetInstance().Destroy();
         }
 
         protected override void OnResize(ResizeEventArgs e)
@@ -67,7 +80,7 @@ namespace SharpWoxel
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             // Render Code
-            _stateManager.GetActiveStates().ForEach(state => state.OnRenderFrame(args.Time));
+            StateManager.GetInstance().GetActiveStates().ForEach(state => state.OnRenderFrame(args.Time));
 
             SwapBuffers();
         }
@@ -84,9 +97,7 @@ namespace SharpWoxel
             }
 
             // Fixed updates code
-            _stateManager.GetActiveStates().ForEach(state => state.OnUpdateFrame(args.Time));
+            StateManager.GetInstance().GetActiveStates().ForEach(state => state.OnUpdateFrame(args.Time));
         }
-
-        public StateManager GetStateManager() { return _stateManager; }
     }
 }

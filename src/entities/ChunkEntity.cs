@@ -23,6 +23,7 @@ namespace SharpWoxel.entities
         {
             _vao.Bind();
             VBO vbo = new VBO();
+
             vbo.SetBufferData(data, usage);
             vbo.DefineVertexAttribPointer(0, 3, 3 * sizeof(float), 0);
             _vbos.Add(vbo);

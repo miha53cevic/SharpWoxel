@@ -1,5 +1,4 @@
-﻿using glObjects;
-using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -14,7 +13,6 @@ namespace SharpWoxel.states
     class PlayingState : State
     {
         private bool _paused;
-        private Shader _basicShader;
         private Camera _camera;
         private SimpleEntity _testEntity;
         private PlayerController _playerController;
@@ -24,8 +22,7 @@ namespace SharpWoxel.states
             : base(game)
         {
             _paused = false;
-            _basicShader = new Shader("../../../shaders/basic.vert", "../../../shaders/basic.frag");
-            _camera = new Camera(new Vector3(0, 0, 0), (float)game.Size.X / (float)game.Size.Y);
+            _camera = new Camera(new Vector3(0, 0, 0), (float)game.RenderResolution.X / (float)game.RenderResolution.Y);
             _testEntity = new SimpleEntity("../../../res/test.png");
             _playerController = new PlayerController(_camera);
             Terrain flatTerrain = new FlatTerrain(new Vector3i(2, 1, 2), new Vector3i(32, 32, 32));
@@ -68,7 +65,7 @@ namespace SharpWoxel.states
             var input = _gameRef.KeyboardState;
             if (input.IsKeyPressed(Keys.Escape))
             {
-                _gameRef.GetStateManager().Add(new PausedState(_gameRef));
+                StateManager.GetInstance().Add(new PausedState(_gameRef));
             }
 
             // Update
@@ -77,8 +74,8 @@ namespace SharpWoxel.states
 
         public override void OnRenderFrame(double deltaTime)
         {
-            _testEntity.Render(_basicShader, _playerController.Camera);
-            _world.Render(_basicShader, _playerController.Camera);
+            _testEntity.Render(ShaderLoader.GetInstance().GetShader("basic"), _playerController.Camera);
+            _world.Render(ShaderLoader.GetInstance().GetShader("basic"), _playerController.Camera);
         }
 
         public override void Pause()
@@ -93,7 +90,6 @@ namespace SharpWoxel.states
 
         public override void OnExit()
         {
-            _basicShader.Dispose();
         }
     }
 }

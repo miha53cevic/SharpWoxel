@@ -60,13 +60,13 @@ namespace glObjects
         {
             if (_handle == -1)
             {
-                Console.WriteLine("[Shader]: _handle is -1");
+                throw new Exception("[Shader]: _handle is -1");
             }
 
             int location = GL.GetUniformLocation(_handle, name);
             if (location == -1)
             {
-                Console.WriteLine("[Shader]: Found no location for the uniform: {0}", name);
+                throw new Exception(string.Format("[Shader]: Found no location for the uniform: {0}", name));
             }
 
             return location;
@@ -75,7 +75,7 @@ namespace glObjects
         public void SetMatrix4(int location, Matrix4 mat)
         {
             Use();
-            GL.UniformMatrix4(location, false, ref mat);
+            GL.UniformMatrix4(location, true, ref mat);
         }
 
         public void SetInt(int location, int data)
@@ -112,7 +112,7 @@ namespace glObjects
                 {
                     GL.DeleteProgram(_handle);
                 }
-                else Console.WriteLine("GPU Resource leak! Did you forget to call Dispose()?"); // If the deconstructor called Dispose()
+                else throw new Exception("GPU Resource leak! Did you forget to call Dispose()?"); // If the deconstructor called Dispose()
 
                 disposedValue = true;
             }

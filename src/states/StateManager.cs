@@ -3,12 +3,19 @@ namespace SharpWoxel.states
 {
     class StateManager
     {
+        private static StateManager _instance = new StateManager();
         private List<State> _states;
 
-        public StateManager()
+        static StateManager()
+        {
+        }
+
+        private StateManager()
         {
             _states = new List<State>();
         }
+
+        public static StateManager GetInstance() { return _instance; }
 
         public void Add(State state)
         {
@@ -56,6 +63,11 @@ namespace SharpWoxel.states
                 return _states.Last();
             }
             else throw new InvalidOperationException("[State]: Stack is empty");
+        }
+
+        public void Destroy()
+        {
+            _states.Clear();
         }
     }
 }
