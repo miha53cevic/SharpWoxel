@@ -1,5 +1,4 @@
 ﻿using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -35,11 +34,6 @@ namespace SharpWoxel
             GL.ClearColor(red, green, blue, alpha);
         }
 
-        public void ResetClearColour()
-        {
-            GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        }
-
         protected override void OnLoad()
         {
             base.OnLoad();
@@ -73,7 +67,7 @@ namespace SharpWoxel
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             // Render Code
-            _stateManager.GetCurrentState().OnRenderFrame(args.Time);
+            _stateManager.GetActiveStates().ForEach(state => state.OnRenderFrame(args.Time));
 
             SwapBuffers();
         }
@@ -89,7 +83,8 @@ namespace SharpWoxel
                 ToggleWireFrame();
             }
 
-            _stateManager.GetCurrentState().OnUpdateFrame(args.Time);
+            // Fixed updates code
+            _stateManager.GetActiveStates().ForEach(state => state.OnUpdateFrame(args.Time));
         }
 
         public StateManager GetStateManager() { return _stateManager; }

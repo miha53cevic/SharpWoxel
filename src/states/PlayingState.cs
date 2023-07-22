@@ -13,6 +13,7 @@ namespace SharpWoxel.states
 {
     class PlayingState : State
     {
+        private bool _paused;
         private Shader _basicShader;
         private Camera _camera;
         private SimpleEntity _testEntity;
@@ -22,6 +23,7 @@ namespace SharpWoxel.states
         public PlayingState(Game game) 
             : base(game)
         {
+            _paused = false;
             _basicShader = new Shader("../../../shaders/basic.vert", "../../../shaders/basic.frag");
             _camera = new Camera(new Vector3(0, 0, 0), (float)game.Size.X / (float)game.Size.Y);
             _testEntity = new SimpleEntity("../../../res/test.png");
@@ -41,7 +43,7 @@ namespace SharpWoxel.states
             _world.GenerateWorld();
         }
 
-        public override void OnUpdateFrame(double deltaTime)
+        private void HandleWindowFocus()
         {
             // Lock cursor (and hide it) to the screen if the window is in focus
             if (_gameRef.IsFocused)
@@ -53,6 +55,14 @@ namespace SharpWoxel.states
                 _gameRef.CursorState = CursorState.Normal;
                 return; // exit function if window is not in focus
             }
+        }
+
+        public override void OnUpdateFrame(double deltaTime)
+        {
+            // Only render the scene when paused, don't do updates
+            if (_paused) return;
+
+            HandleWindowFocus();
 
             // Pause the game
             var input = _gameRef.KeyboardState;
@@ -73,12 +83,12 @@ namespace SharpWoxel.states
 
         public override void Pause()
         {
-            
+            _paused = true;
         }
 
         public override void Resume()
         {
-            
+            _paused = false;
         }
 
         public override void OnExit()

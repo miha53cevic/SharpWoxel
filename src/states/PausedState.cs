@@ -13,7 +13,6 @@ namespace SharpWoxel.states
 
         public override void OnExit()
         {
-            _gameRef.ResetClearColour();
         }
 
         public override void OnRenderFrame(double deltaTime)
@@ -41,8 +40,6 @@ namespace SharpWoxel.states
         {
             // Release the mouse from the window
             _gameRef.CursorState = CursorState.Normal;
-
-            _gameRef.SetClearColour(51, 51, 51, 255);
         }
     }
 }

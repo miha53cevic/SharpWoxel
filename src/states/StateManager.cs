@@ -3,33 +3,33 @@ namespace SharpWoxel.states
 {
     class StateManager
     {
-        private Stack<State> _states;
+        private List<State> _states;
 
         public StateManager()
         {
-            _states = new Stack<State>();
+            _states = new List<State>();
         }
 
         public void Add(State state)
         {
             if (Size() > 0) 
             {
-                GetCurrentState().Pause();
+                _states.Last().Pause();
             }
 
             state.Setup();
-            _states.Push(state);
+            _states.Add(state);
         }
 
         public void Pop()
         {
             if ( _states.Count > 0 )
             {
-                var state = _states.Pop();
-                state.OnExit();
+                _states.Last().OnExit();
+                _states.Remove(_states.Last());
                 
                 if (Size() > 0)
-                    GetCurrentState().Resume();
+                    _states.Last().Resume();
             }
             else throw new InvalidOperationException("[State]: Stack is empty");
         }
@@ -39,11 +39,21 @@ namespace SharpWoxel.states
             return _states.Count;
         }
 
+        public List<State> GetActiveStates()
+        {
+            if (_states.Count > 0)
+            {
+                // Send back copy, so when we remove an element it doesn't break
+                return _states.ToList();
+            }
+            else throw new InvalidOperationException("[State]: Stack is empty");
+        }
+
         public State GetCurrentState()
         {
             if (_states.Count > 0)
             {
-                return _states.Peek();
+                return _states.Last();
             }
             else throw new InvalidOperationException("[State]: Stack is empty");
         }
