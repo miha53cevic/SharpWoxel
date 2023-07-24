@@ -50,7 +50,7 @@ namespace SharpWoxel.gui
             model *= Matrix4.CreateTranslation(new Vector3(position.X, position.Y, 0.0f));
 
             shader.Use();
-            // OpenTK is row-based, so we multiply like this instead of projection*matrix which would be in c++
+            // OpenTK is row-based, so we multiply like this instead of projection*model which would be in c++
             shader.SetMatrix4(shader.GetUniformLocation("modelProjection"), model * projection); 
 
             _vao.Bind();

@@ -1,4 +1,4 @@
-#version 330
+#version 330 core
 in vec2 pass_texture;
 
 out vec4 Frag_Colour;

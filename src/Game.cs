@@ -4,6 +4,7 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using SharpWoxel.gui;
+using SharpWoxel.imgui;
 using SharpWoxel.states;
 using SharpWoxel.util;
 
@@ -47,6 +48,8 @@ namespace SharpWoxel
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace); // Cull faces (render only triangles that are counter-clockwise)
 
+            ImGuiSingleton.GetInstance().Load(Size.X, Size.Y);
+
             GUI.Init(RenderResolution.X, RenderResolution.Y);
             ShaderLoader.GetInstance().Load("../../../shaders/basic");
             ShaderLoader.GetInstance().Load("../../../shaders/gui");
@@ -56,6 +59,8 @@ namespace SharpWoxel
         protected override void OnUnload()
         {
             base.OnUnload();
+
+            ImGuiSingleton.GetInstance().Destroy();
 
             // Dispose of all loaded shaders
             ShaderLoader.GetInstance().Destroy();
@@ -68,6 +73,8 @@ namespace SharpWoxel
             base.OnResize(e);
 
             GL.Viewport(0, 0, e.Width, e.Height);
+
+            ImGuiSingleton.GetInstance().OnResize(e.Width, e.Height);
         }
 
         // Rendering/Drawing updates
@@ -95,9 +102,30 @@ namespace SharpWoxel
             {
                 ToggleWireFrame();
             }
+            if (input.IsKeyPressed(Keys.P))
+            {
+                if (StateManager.GetInstance().GetCurrentState().GetType() != typeof(ImGuiOverlayState))
+                {
+                    StateManager.GetInstance().Add(new ImGuiOverlayState(this));
+                }
+            }
 
             // Fixed updates code
             StateManager.GetInstance().GetActiveStates().ForEach(state => state.OnUpdateFrame(args.Time));
+        }
+
+        protected override void OnTextInput(TextInputEventArgs e)
+        {
+            base.OnTextInput(e);
+
+            ImGuiSingleton.GetInstance().OnTextInput((char)e.Unicode);
+        }
+
+        protected override void OnMouseWheel(MouseWheelEventArgs e)
+        {
+            base.OnMouseWheel(e);
+
+            ImGuiSingleton.GetInstance().OnMouseScroll(e.Offset);
         }
     }
 }

@@ -17,21 +17,37 @@ namespace SharpWoxel.states
 
         public static StateManager GetInstance() { return _instance; }
 
-        public void Add(State state)
+        public void Add(State state, bool replace = false)
         {
-            if (Size() > 0) 
+            if (replace)
             {
-                _states.Last().Pause();
+                if (Size() > 0)
+                {
+                    throw new Exception("Trying to replace scene with empty stack");
+                }
+                _states.Last().OnExit();
+                state.Setup();
+                _states[Size() - 1] = state;
             }
+            else
+            {
+                if (Size() > 0)
+                {
+                    _states.Last().Pause();
+                }
 
-            state.Setup();
-            _states.Add(state);
+                state.Setup();
+                _states.Add(state);
+            }
+            Console.WriteLine(string.Format("[StateManager]: Adding state {0} (replace={1})", state.GetType(), replace));
         }
 
         public void Pop()
         {
             if ( _states.Count > 0 )
             {
+                Console.WriteLine(string.Format("[StateManager]: Removing state {0}", _states.Last().GetType()));
+
                 _states.Last().OnExit();
                 _states.Remove(_states.Last());
                 
