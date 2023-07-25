@@ -1,4 +1,5 @@
 ﻿
+using ImGuiNET;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using SharpWoxel.imgui;
@@ -43,6 +44,23 @@ namespace SharpWoxel.states
         {
             // Release the mouse from the window
             _gameRef.CursorState = CursorState.Normal;
+
+            //ImGuiSingleton.GetInstance().AddDemoWindow();
+
+            // Very simple example window
+            /*ImGuiSingleton.GetInstance().AddRenderFunction(controller =>
+            {
+                // Must use if with Begin() for root window, rest is inside of the if
+                // BeginChild() opens child windows inside the rooot.
+                // If you don't want something then don't render it (bool values to check)
+                if (ImGui.Begin("My first window"))
+                {
+                    ImGui.Text("Hello Dear ImGui");
+                    float a = 1.0f;
+                    ImGui.SliderFloat("slider1", ref a, 0.0f, 2.0f);
+                }
+                ImGui.End();
+            });*/
         }
     }
 }

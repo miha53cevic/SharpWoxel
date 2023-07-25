@@ -1,6 +1,6 @@
-﻿
-using DotnetNoise;
+﻿using ImGuiNET;
 using OpenTK.Mathematics;
+using SharpWoxel.imgui;
 using SharpWoxel.util.noise;
 using SharpWoxel.world.blocks;
 
@@ -8,29 +8,70 @@ namespace SharpWoxel.world.terrain
 {
     class TestTerrain : Terrain
     {
+        private NoiseOptions _noiseOptions1;
+        private NoiseOptions _noiseOptions2;
+
         public TestTerrain(Vector3i size, Vector3i chunkSize) 
             : base(size, chunkSize)
         {
+            _noiseOptions1 = new NoiseOptions
+            {
+                Octaves = 6,
+                Frequency = 0.108f,
+                Amplitude = 0.5f,
+            };
+
+            _noiseOptions2 = new NoiseOptions
+            {
+                Octaves = 4,
+                Frequency = 0.5f,
+                Amplitude = 0.612f,
+            };
+
+            ImGuiSingleton.GetInstance().AddRenderFunction((controller) =>
+            {
+                if (ImGui.Begin("NoiseOptions"))
+                {
+                    ImGui.SeparatorText("NoiseOptions1");
+                    {
+                        int octaves = _noiseOptions1.Octaves;
+                        ImGui.SliderInt("n1/octaves", ref octaves, 0, 10);
+                        _noiseOptions1.Octaves = octaves;
+
+                        float freq = _noiseOptions1.Frequency;
+                        ImGui.SliderFloat("n1/frequency", ref freq, 0f, 1f);
+                        _noiseOptions1.Frequency = freq;
+
+                        float amplitude = _noiseOptions1.Amplitude;
+                        ImGui.SliderFloat("n1/amplitude", ref amplitude, 0f, 1f);
+                        _noiseOptions1.Amplitude = amplitude;
+                    }
+                    ImGui.SeparatorText("NoiseOptions2");
+                    {
+                        int octaves = _noiseOptions2.Octaves;
+                        ImGui.SliderInt("n2/octaves", ref octaves, 0, 10);
+                        _noiseOptions2.Octaves = octaves;
+
+                        float freq = _noiseOptions2.Frequency;
+                        ImGui.SliderFloat("n2/frequency", ref freq, 0f, 1f);
+                        _noiseOptions2.Frequency = freq;
+
+                        float amplitude = _noiseOptions2.Amplitude;
+                        ImGui.SliderFloat("n2/amplitude", ref amplitude, 0f, 1f);
+                        _noiseOptions2.Amplitude = amplitude;
+                    }
+                    ImGui.Spacing(); // like <br>
+                    if (ImGui.Button("Rebuild terrain"))
+                    {
+                        base.GenerateTerrain();
+                    }
+                }
+                ImGui.End();
+            });
         }
 
         protected override void Generate()
         {
-            NoiseOptions noiseOptions1 = new NoiseOptions
-            {
-                Octaves = 6,
-                Frequency = 0.9f,
-                Roughness = 0.5f,
-                Redistribution = 1.0f
-            };
-
-            NoiseOptions noiseOptions2 = new NoiseOptions
-            {
-                Octaves = 4,
-                Frequency = 0.8f,
-                Roughness = 0.5f,
-                Redistribution = 1.0f
-            };
-
             int seed = 1337;
             Noise noise = new SimplexNoise(seed);
 
@@ -49,8 +90,8 @@ namespace SharpWoxel.world.terrain
                         float posZ = chunk.Entity.Position.Z + z;
 
                         // Combine 2 noise height maps for hilly and flat terrain combos
-                        float noise1 = noise.GenerateNoise2(posX, posZ, noiseOptions1);
-                        float noise2 = noise.GenerateNoise2(posX, posZ, noiseOptions2);
+                        float noise1 = noise.GenerateNoise2(posX, posZ, _noiseOptions1);
+                        float noise2 = noise.GenerateNoise2(posX, posZ, _noiseOptions2);
                         float result = noise1 * noise2;
 
                         int height = (int)(result * (float)maxAmp + (float)minAmp);
@@ -80,6 +121,8 @@ namespace SharpWoxel.world.terrain
                                     chunk.SetBlockLocal(x, y, z, new StoneBlock());
                                 }
                             }
+                            if (voxelY > height) 
+                                chunk.SetBlockLocal(x, y, z, new AirBlock());
                         }
                     }
                 } 

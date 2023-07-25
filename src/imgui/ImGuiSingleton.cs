@@ -32,14 +32,24 @@ namespace SharpWoxel.imgui
             {
                 renderFunction(_controller!);
             }
-            ImGui.ShowDemoWindow();
+            
             _controller?.Render();
             ImGuiController.CheckGLError("End of frame");
         }
 
+        /*
+         * Code examples
+         * Demo window code: https://github.com/ocornut/imgui/blob/master/imgui_demo.cpp
+         * Interactive gui builder: https://pthom.github.io/imgui_manual_online/manual/imgui_manual.html
+        */
         public void AddRenderFunction(Action<ImGuiController> renderFunction)
         {
             _renderFunctions.Add(renderFunction);
+        }
+
+        public void AddDemoWindow()
+        {
+            AddRenderFunction((controller) => ImGui.ShowDemoWindow());
         }
 
         public void ClearRenderFunctions()
