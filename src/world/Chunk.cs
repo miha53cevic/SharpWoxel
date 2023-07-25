@@ -35,11 +35,16 @@ namespace SharpWoxel.world
             _neighbours = new Chunk[_neighbourCount];
 
             // Set chunk to be air by default
-            for (int x = 0; x < chunkSize.X; x++)
+            AirOutChunk();
+        }
+
+        public void AirOutChunk()
+        {
+            for (int x = 0; x < _chunkSize.X; x++)
             {
-                for (int y = 0; y < chunkSize.Y; y++)
+                for (int y = 0; y < _chunkSize.Y; y++)
                 {
-                    for (int z = 0; z < chunkSize.Z; z++)
+                    for (int z = 0; z < _chunkSize.Z; z++)
                     {
                         _blocks[x, y, z] = new AirBlock();
                     }

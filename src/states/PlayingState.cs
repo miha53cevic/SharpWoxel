@@ -14,7 +14,6 @@ namespace SharpWoxel.states
     {
         private bool _paused;
         private Camera _camera;
-        private SimpleEntity _testEntity;
         private PlayerController _playerController;
         private WorldModel _world;
 
@@ -23,7 +22,6 @@ namespace SharpWoxel.states
         {
             _paused = false;
             _camera = new Camera(new Vector3(0, 0, 0), (float)game.RenderResolution.X / (float)game.RenderResolution.Y);
-            _testEntity = new SimpleEntity("../../../res/test.png");
             _playerController = new PlayerController(_camera);
             Terrain flatTerrain = new FlatTerrain(new Vector3i(2, 1, 2), new Vector3i(32, 32, 32));
             Terrain testTerrain = new TestTerrain(new Vector3i(3, 3, 3), new Vector3i(32, 32, 32));
@@ -32,11 +30,6 @@ namespace SharpWoxel.states
         public override void Setup()
         {
             _playerController.Camera.Position = (1.5f * 32.0f, 1.5f * 32.0f, 1.5f * 32.0f);
-            _testEntity.SetVerticies(Cube.verticies, BufferUsageHint.StaticDraw);
-            _testEntity.SetTextureCoords(Cube.textureCoordinates, BufferUsageHint.StaticDraw);
-            _testEntity.SetIndicies(Cube.indicies, BufferUsageHint.StaticDraw);
-            _testEntity.Position = _playerController.Camera.Position;
-            _testEntity.Position += (0, 0, -3);
             _world.GenerateWorld();
         }
 
@@ -74,7 +67,6 @@ namespace SharpWoxel.states
 
         public override void OnRenderFrame(double deltaTime)
         {
-            _testEntity.Render(ShaderLoader.GetInstance().GetShader("basic"), _playerController.Camera);
             _world.Render(ShaderLoader.GetInstance().GetShader("basic"), _playerController.Camera);
         }
 

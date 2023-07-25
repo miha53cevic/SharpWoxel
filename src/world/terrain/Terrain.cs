@@ -96,14 +96,14 @@ namespace SharpWoxel.world.terrain
             return GetChunkFromGlobal(x, y, z).GetBlockLocal(lx, ly, lz);
         }
 
-        public void SetBlockGlobal(int x, int y, int z, int block)
+        public void SetBlockGlobal(int x, int y, int z, IBlock block)
         {
             // Convert to local block position
             int lx = x % _chunkSize.X;
             int ly = y % _chunkSize.Y;
             int lz = z % _chunkSize.Z;
 
-            GetChunkFromGlobal(x, y, z).GetBlockLocal(lx, ly, lz);
+            GetChunkFromGlobal(x, y, z).SetBlockLocal(lx, ly, lz, block);
         }
 
         public Chunk GetChunkFromGlobal(int x, int y, int z)

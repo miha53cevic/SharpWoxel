@@ -10,10 +10,13 @@ namespace SharpWoxel.world.terrain
     {
         private NoiseOptions _noiseOptions1;
         private NoiseOptions _noiseOptions2;
+        private Random _random;
 
         public TestTerrain(Vector3i size, Vector3i chunkSize) 
             : base(size, chunkSize)
         {
+            _random = new Random();
+
             _noiseOptions1 = new NoiseOptions
             {
                 Octaves = 6,
@@ -24,7 +27,7 @@ namespace SharpWoxel.world.terrain
             _noiseOptions2 = new NoiseOptions
             {
                 Octaves = 4,
-                Frequency = 0.5f,
+                Frequency = 0.4f,
                 Amplitude = 0.612f,
             };
 
@@ -78,8 +81,40 @@ namespace SharpWoxel.world.terrain
             int minAmp = 1;
             int maxAmp = _chunkSize.Y * _terrainSize.Y;
 
+            void createTree(Vector3i location)
+            {
+                int treeHeight = _random.Next(4, 7);
+                for (int i = 0; i < treeHeight; i++)
+                    SetBlockGlobal(location.X, location.Y + i, location.Z, new WoodBlock());
+
+                // TODO: REDO THIS
+                for (int x = -2; x <= 2; x++)
+                    for (int y = -2; y < 1; y++)
+                        for (int z = -2; z <= 2; z++)
+                        {
+                            if (x == 0 && y < 0 && z == 0)
+                                continue;
+
+                            if (y == -1 && (Math.Abs(x) == 2 || Math.Abs(z) == 2))
+                                continue;
+
+                            if (y == 0 && (Math.Abs(x) >= 1 || Math.Abs(z) >= 1))
+                                continue;
+
+                            SetBlockGlobal(location.X + x, location.Y + y + treeHeight, location.Z + z, new LeafBlock());
+                        }
+
+                SetBlockGlobal(location.X + 1, location.Y + treeHeight, location.Z + 0, new LeafBlock());
+                SetBlockGlobal(location.X - 1, location.Y + treeHeight, location.Z + 0, new LeafBlock());
+                SetBlockGlobal(location.X + 0, location.Y + treeHeight, location.Z + 1, new LeafBlock());
+                SetBlockGlobal(location.X + 0, location.Y + treeHeight, location.Z - 1, new LeafBlock());
+            }
+
             void createTerrain(Chunk chunk)
             {
+                // Set every block to air
+                chunk.AirOutChunk();
+
                 // Go through every block in the chunk
                 for (int x = 0; x < _chunkSize.X; x++)
                 {
@@ -105,12 +140,25 @@ namespace SharpWoxel.world.terrain
                         {
                             // Get the voxels global Y position
                             int voxelY = (int)chunk.Entity.Position.Y + y;
-                            
+ 
                             if (voxelY == height)
                             {
                                 chunk.SetBlockLocal(x, y, z, new GrassBlock());
+
+                                // TODO: Move this into createTree and keep only location
+                                if (_random.NextSingle() >= 0.99f)
+                                {
+                                    if (x > 1 && x + 2 < _chunkSize.X && y > 1 && y + 7 < _chunkSize.Y && z > 1 && z + 2 < _chunkSize.Z)
+                                    {
+                                        var location = Vector3i.Zero;
+                                        location.X = (int)chunk.Entity.Position.X + x;
+                                        location.Y = voxelY + 1;
+                                        location.Z = (int)chunk.Entity.Position.Z + z;
+                                        createTree(location);
+                                    }
+                                }
                             }
-                            if (voxelY < height)
+                            else if (voxelY < height)
                             {
                                 if (voxelY >= height - 3)
                                 {
@@ -121,8 +169,6 @@ namespace SharpWoxel.world.terrain
                                     chunk.SetBlockLocal(x, y, z, new StoneBlock());
                                 }
                             }
-                            if (voxelY > height) 
-                                chunk.SetBlockLocal(x, y, z, new AirBlock());
                         }
                     }
                 } 
