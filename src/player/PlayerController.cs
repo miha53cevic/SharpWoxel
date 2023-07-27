@@ -1,13 +1,17 @@
 ﻿using SharpWoxel.util;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using SharpWoxel.player.inventory;
+using SharpWoxel.world.blocks;
+using glObjects;
 
 namespace SharpWoxel.player
 {
     class PlayerController
     {
+        public Camera Camera { get; private set; }
         public float PlayerSpeed { get; set; }
         public float Sensetivity { get; set; }
-        public Camera Camera { get; private set; }
+        public Inventory PlayerInventory { get; private set; }
 
         public PlayerController(Camera camera)
         {
@@ -15,6 +19,8 @@ namespace SharpWoxel.player
             Camera = camera;
             PlayerSpeed = 10.0f;
             Sensetivity = 0.25f;
+            PlayerInventory = new Inventory(8, (0, 0), (64, 64));
+            PlayerInventory.ChangeInventoryItem(0, new GrassBlock());
         }
 
         private void HandleInput(double deltaTime, KeyboardState keyInput, MouseState mouseInput)
@@ -59,11 +65,26 @@ namespace SharpWoxel.player
             // Mouse inputs
             Camera.Yaw += mouseInput.Delta.X * Sensetivity;
             Camera.Pitch -= mouseInput.Delta.Y * Sensetivity;
+
+            // Inventory selection
+            if (mouseInput.ScrollDelta.Y < 0)
+            {
+                PlayerInventory.SelectNext();
+            }
+            else if (mouseInput.ScrollDelta.Y > 0)
+            {
+                PlayerInventory.SelectPrevious();
+            }
         }
 
         public void Update(double deltaTime, KeyboardState keyInput, MouseState mouseInput)
         {
             HandleInput(deltaTime, keyInput, mouseInput);
+        }
+
+        public void RenderInventory(Shader shader)
+        {
+            PlayerInventory.Render(shader);
         }
     }
 }

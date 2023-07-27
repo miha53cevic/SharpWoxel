@@ -27,7 +27,7 @@ namespace SharpWoxel.world
 
         public Chunk(Vector3 position, Vector3i chunkSize) 
         {
-            Entity = new ChunkEntity("../../../res/textureAtlas.png", 2048, 256);
+            Entity = new ChunkEntity();
             Entity.Position = position;
 
             _chunkSize = chunkSize;
@@ -104,7 +104,7 @@ namespace SharpWoxel.world
 
                 var block = _blocks[x, y, z];
                 var coords = block.GetFaceTextureAtlasCoordinates(face);
-                temp_textureCoords.AddRange(Entity.GetTextureAtlas().GetTextureCoords(coords.X, coords.Y));
+                temp_textureCoords.AddRange(ChunkEntity.TexAtlas.GetTextureCoords(coords.X, coords.Y));
 
                 temp_indicies.Add(indicies + 0);
                 temp_indicies.Add(indicies + 1);

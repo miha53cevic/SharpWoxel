@@ -15,7 +15,7 @@ namespace SharpWoxel.states
         public PausedState(Game game) 
             : base(game)
         {
-            _buttonTexture = Texture.LoadFromFile("../../../res/test.png");
+            _buttonTexture = Texture.LoadFromFile("../../../res/paused_font_goudystout.png");
         }
 
         public override void OnExit()
@@ -25,7 +25,8 @@ namespace SharpWoxel.states
         public override void OnRenderFrame(double deltaTime)
         {
             _buttonTexture.Use(TextureUnit.Texture0);
-            var size = new Vector2(200, 200);
+            GUI.GetInstance().Rectangle.SetDefaultTextureCoordinates();
+            var size = new Vector2(600, 200);
             var position = new Vector2(_gameRef.RenderResolution.X / 2 - (size.X / 2), _gameRef.RenderResolution.Y / 2 - (size.Y / 2));
             GUI.GetInstance().Rectangle.Render(ShaderLoader.GetInstance().GetShader("gui"), position, size);
         }

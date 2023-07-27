@@ -1,8 +1,6 @@
-﻿using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using SharpWoxel.entities;
 using SharpWoxel.player;
 using SharpWoxel.util;
 using SharpWoxel.world;
@@ -68,6 +66,7 @@ namespace SharpWoxel.states
         public override void OnRenderFrame(double deltaTime)
         {
             _world.Render(ShaderLoader.GetInstance().GetShader("basic"), _playerController.Camera);
+            _playerController.RenderInventory(ShaderLoader.GetInstance().GetShader("gui"));
         }
 
         public override void Pause()

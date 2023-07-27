@@ -73,6 +73,44 @@ namespace SharpWoxel.world.terrain
             });
         }
 
+        private void CreateTree(float chance, int minHeight, int maxHeight, Vector3i globalLocation)
+        {
+            // Chance to createTree
+            if (!(_random.NextSingle() <= chance)) return;
+
+            int treeHeight = _random.Next(minHeight, maxHeight + 1);
+            for (int i = 0; i < treeHeight; i++)
+                SetBlockGlobal(globalLocation.X, globalLocation.Y + i, globalLocation.Z, new WoodBlock());
+
+            // Create minecraft like tree
+            for (int x = -2; x <= 2; x++)
+                for (int y = -2; y < 1; y++)
+                    for (int z = -2; z <= 2; z++)
+                    {
+                        // Keep the WoodBlocks
+                        if (x == 0 && y < 0 && z == 0)
+                            continue;
+
+                        if (y == -1 && (Math.Abs(x) == 2 || Math.Abs(z) == 2))
+                            continue;
+
+                        if (y == 0 && (Math.Abs(x) >= 1 || Math.Abs(z) >= 1))
+                            continue;
+
+                        int globalX = globalLocation.X + x;
+                        int globalY = globalLocation.Y + y + treeHeight;
+                        int globalZ = globalLocation.Z + z;
+
+                        // If the tree is going outside of the world border don't render those blocks
+                        if (globalX < 0 || globalX >= _chunkSize.X * _terrainSize.X ||
+                            globalY < 0 || globalY >= _chunkSize.Y * _terrainSize.Y ||
+                            globalZ < 0 || globalZ >= _chunkSize.Z * _terrainSize.Z)
+                            continue;
+
+                        SetBlockGlobal(globalX, globalY, globalZ, new LeafBlock());
+                    }
+        }
+
         protected override void Generate()
         {
             int seed = 1337;
@@ -81,40 +119,8 @@ namespace SharpWoxel.world.terrain
             int minAmp = 1;
             int maxAmp = _chunkSize.Y * _terrainSize.Y;
 
-            void createTree(Vector3i location)
-            {
-                int treeHeight = _random.Next(4, 7);
-                for (int i = 0; i < treeHeight; i++)
-                    SetBlockGlobal(location.X, location.Y + i, location.Z, new WoodBlock());
-
-                // TODO: REDO THIS
-                for (int x = -2; x <= 2; x++)
-                    for (int y = -2; y < 1; y++)
-                        for (int z = -2; z <= 2; z++)
-                        {
-                            if (x == 0 && y < 0 && z == 0)
-                                continue;
-
-                            if (y == -1 && (Math.Abs(x) == 2 || Math.Abs(z) == 2))
-                                continue;
-
-                            if (y == 0 && (Math.Abs(x) >= 1 || Math.Abs(z) >= 1))
-                                continue;
-
-                            SetBlockGlobal(location.X + x, location.Y + y + treeHeight, location.Z + z, new LeafBlock());
-                        }
-
-                SetBlockGlobal(location.X + 1, location.Y + treeHeight, location.Z + 0, new LeafBlock());
-                SetBlockGlobal(location.X - 1, location.Y + treeHeight, location.Z + 0, new LeafBlock());
-                SetBlockGlobal(location.X + 0, location.Y + treeHeight, location.Z + 1, new LeafBlock());
-                SetBlockGlobal(location.X + 0, location.Y + treeHeight, location.Z - 1, new LeafBlock());
-            }
-
             void createTerrain(Chunk chunk)
             {
-                // Set every block to air
-                chunk.AirOutChunk();
-
                 // Go through every block in the chunk
                 for (int x = 0; x < _chunkSize.X; x++)
                 {
@@ -145,18 +151,12 @@ namespace SharpWoxel.world.terrain
                             {
                                 chunk.SetBlockLocal(x, y, z, new GrassBlock());
 
-                                // TODO: Move this into createTree and keep only location
-                                if (_random.NextSingle() >= 0.99f)
-                                {
-                                    if (x > 1 && x + 2 < _chunkSize.X && y > 1 && y + 7 < _chunkSize.Y && z > 1 && z + 2 < _chunkSize.Z)
-                                    {
-                                        var location = Vector3i.Zero;
-                                        location.X = (int)chunk.Entity.Position.X + x;
-                                        location.Y = voxelY + 1;
-                                        location.Z = (int)chunk.Entity.Position.Z + z;
-                                        createTree(location);
-                                    }
-                                }
+                                // Chance to create trees on the top block
+                                var globalLocation = Vector3i.Zero;
+                                globalLocation.X = (int)chunk.Entity.Position.X + x;
+                                globalLocation.Y = voxelY + 1;
+                                globalLocation.Z = (int)chunk.Entity.Position.Z + z;
+                                CreateTree(0.01f, 4, 6, globalLocation);
                             }
                             else if (voxelY < height)
                             {
@@ -173,6 +173,10 @@ namespace SharpWoxel.world.terrain
                     }
                 } 
             }
+
+            // Fill each chunk with air first, before setting it
+            foreach (var chunk in _chunks)
+                chunk.AirOutChunk();
 
             foreach (var chunk in  _chunks)
             {

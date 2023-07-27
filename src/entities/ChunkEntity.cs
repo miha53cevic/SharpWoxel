@@ -6,15 +6,20 @@ namespace SharpWoxel.entities
 {
     class ChunkEntity : Entity
     {
-        private readonly TextureAtlas _atlas;
         private readonly VAO _vao;
         private readonly EBO _ebo;
         private readonly VBO _verticiesVBO;
         private readonly VBO _textureCoordsVBO;
 
-        public ChunkEntity(string atlasTexturePath, int imageSize, int individualTextureSize)
+        public static readonly TextureAtlas TexAtlas; // all the chunks use the same atlas
+
+        static ChunkEntity()
         {
-            _atlas = new TextureAtlas(atlasTexturePath, imageSize, individualTextureSize);
+            TexAtlas = new TextureAtlas("../../../res/textureAtlas.png", 2048, 256);
+        }
+
+        public ChunkEntity()
+        {
             _vao = new VAO();
             _ebo = new EBO();
             _verticiesVBO = new VBO();
@@ -25,8 +30,9 @@ namespace SharpWoxel.entities
         {
             _vao.Bind();
             _verticiesVBO.SetBufferData(data, usage);
-            _verticiesVBO.DefineVertexAttribPointer(0, 3, 3 * sizeof(float), 0);
             _vao.Unbind();
+
+            _vao.DefineVertexAttribPointer(_verticiesVBO, 0, 3, 3 * sizeof(float), 0);
         }
         public void SetIndicies(uint[] data, BufferUsageHint usage)
         {
@@ -39,19 +45,15 @@ namespace SharpWoxel.entities
         {
             _vao.Bind();
             _textureCoordsVBO.SetBufferData(data, usage);
-            _textureCoordsVBO.DefineVertexAttribPointer(1, 2, 2 * sizeof(float), 0);
             _vao.Unbind();
-        }
 
-        public TextureAtlas GetTextureAtlas()
-        {
-            return _atlas;
+            _vao.DefineVertexAttribPointer(_textureCoordsVBO, 1, 2, 2 * sizeof(float), 0);
         }
 
         public override void Render(Shader shader, Camera camera)
         {
             shader.Use();
-            _atlas.Use(TextureUnit.Texture0);
+            TexAtlas.Use(TextureUnit.Texture0);
 
             var model = Maths.CreateTransformationMatrix(
                 Position,

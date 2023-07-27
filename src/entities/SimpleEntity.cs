@@ -28,12 +28,13 @@ namespace SharpWoxel.entities
             _vao.Bind();
             VBO vbo = new VBO();
             vbo.SetBufferData(data, usage);
+            _vbos.Add(vbo);
+            _vao.Unbind();
+
             // VertexAttribPointer index is the index of the attribute in the shader
             // One VAO has multiple AttribPointers to multiple or the same VBO
             // zamisli kao pointer da si napravil, a zna se da je to taj jer SetBufferData radi BindBuffer unutar Bindanog VAO
-            vbo.DefineVertexAttribPointer(0, 3, 3 * sizeof(float), 0); // 3 jer je vec3 (x, y, z)
-            _vbos.Add(vbo);
-            _vao.Unbind();
+            _vao.DefineVertexAttribPointer(vbo, 0, 3, 3 * sizeof(float), 0); // 3 jer je vec3 (x, y, z)
 
             _loadedVerticies = true;
         }
@@ -53,10 +54,11 @@ namespace SharpWoxel.entities
             _vao.Bind();
             VBO vbo = new VBO();
             vbo.SetBufferData(data, usage);
-            // zamisli kao pointer da si napravil, a zna se da je to taj jer SetBufferData radi BindBuffer unutar Bindanog VAO
-            vbo.DefineVertexAttribPointer(1, 2, 2 * sizeof(float), 0); // 2 jer je vec2 (x, y)
             _vbos.Add(vbo);
             _vao.Unbind();
+
+            // zamisli kao pointer da si napravil, a zna se da je to taj jer SetBufferData radi BindBuffer unutar Bindanog VAO
+            _vao.DefineVertexAttribPointer(vbo, 1, 2, 2 * sizeof(float), 0); // 2 jer je vec2 (x, y)
 
             _loadedTextureCoords = true;
         }
