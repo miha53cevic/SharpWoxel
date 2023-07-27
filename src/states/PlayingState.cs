@@ -2,6 +2,7 @@
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using SharpWoxel.player;
+using SharpWoxel.player.inventory;
 using SharpWoxel.util;
 using SharpWoxel.world;
 using SharpWoxel.world.terrain;
@@ -14,14 +15,20 @@ namespace SharpWoxel.states
         private Camera _camera;
         private PlayerController _playerController;
         private WorldModel _world;
+        private InventoryRenderer _inventoryRenderer;
 
         public PlayingState(Game game) 
             : base(game)
         {
             _paused = false;
             _camera = new Camera(new Vector3(0, 0, 0), (float)game.RenderResolution.X / (float)game.RenderResolution.Y);
-            _playerController = new PlayerController(_camera);
-            Terrain flatTerrain = new FlatTerrain(new Vector3i(2, 1, 2), new Vector3i(32, 32, 32));
+
+            var playerInventory = new Inventory(8);
+            _playerController = new PlayerController(_camera, playerInventory);
+            _inventoryRenderer = new InventoryRenderer(playerInventory);
+            _inventoryRenderer.SetInventoryPosition((_gameRef.RenderResolution.X / 2, 64));
+            _inventoryRenderer.CenterOnPosition();
+            
             Terrain testTerrain = new TestTerrain(new Vector3i(3, 3, 3), new Vector3i(32, 32, 32));
             _world = new WorldModel(testTerrain);
         }
@@ -66,7 +73,7 @@ namespace SharpWoxel.states
         public override void OnRenderFrame(double deltaTime)
         {
             _world.Render(ShaderLoader.GetInstance().GetShader("basic"), _playerController.Camera);
-            _playerController.RenderInventory(ShaderLoader.GetInstance().GetShader("gui"));
+            _inventoryRenderer.Render(ShaderLoader.GetInstance().GetShader("gui"));
         }
 
         public override void Pause()

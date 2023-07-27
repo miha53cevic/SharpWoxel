@@ -12,6 +12,10 @@ namespace SharpWoxel.gui
         private readonly EBO _ebo;
         private readonly Matrix4 _projection;
 
+        public Vector2i Position { get; set; } = Vector2i.Zero;
+        public Vector2i Size { get; set; } = Vector2i.One;
+        public float Rotation { get; set; } = 0.0f;
+
         // Verticies and texture coords are the same in the current order
         public static readonly float[] Verticies = {
             0f,1f,
@@ -61,16 +65,21 @@ namespace SharpWoxel.gui
             _vao.DefineVertexAttribPointer(_verticiesVBO, 1, 2, 2 * sizeof(float), 0);
         }
 
+        public void CenterOnPosition()
+        {
+            Position = (Position.X - (Size.X / 2), Position.Y - (Size.Y / 2));
+        }
+
         // Note: Starting position is bottom left cornor and is regarded as (0,0)
-        public void Render(Shader shader, Vector2 position, Vector2 size, float rotation = 0)
+        public void Render(Shader shader)
         {
             var projection = _projection;
 
             // OpenTK - Scale -> Rotation -> Transform
             var model = Matrix4.Identity;
-            model *= Matrix4.CreateScale(size.X, size.Y, 1.0f);
-            model *= Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(rotation));
-            model *= Matrix4.CreateTranslation(new Vector3(position.X, position.Y, 0.0f));
+            model *= Matrix4.CreateScale(Size.X, Size.Y, 1.0f);
+            model *= Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(Rotation));
+            model *= Matrix4.CreateTranslation(new Vector3(Position.X, Position.Y, 0.0f));
 
             shader.Use();
             // OpenTK is row-based, so we multiply like this instead of projection*model which would be in c++

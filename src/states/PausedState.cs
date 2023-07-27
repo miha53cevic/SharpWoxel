@@ -11,6 +11,7 @@ namespace SharpWoxel.states
     class PausedState : State
     {
         private Texture _buttonTexture;
+        private Rect _uiPause = GUI.CreateRect();
 
         public PausedState(Game game) 
             : base(game)
@@ -22,13 +23,20 @@ namespace SharpWoxel.states
         {
         }
 
+        public override void Setup()
+        {
+            // Release the mouse from the window
+            _gameRef.CursorState = CursorState.Normal;
+
+            _uiPause.Position = new Vector2i(_gameRef.RenderResolution.X / 2, _gameRef.RenderResolution.Y / 2);
+            _uiPause.Size = new Vector2i(600, 200);
+            _uiPause.CenterOnPosition();
+        }
+
         public override void OnRenderFrame(double deltaTime)
         {
             _buttonTexture.Use(TextureUnit.Texture0);
-            GUI.GetInstance().Rectangle.SetDefaultTextureCoordinates();
-            var size = new Vector2(600, 200);
-            var position = new Vector2(_gameRef.RenderResolution.X / 2 - (size.X / 2), _gameRef.RenderResolution.Y / 2 - (size.Y / 2));
-            GUI.GetInstance().Rectangle.Render(ShaderLoader.GetInstance().GetShader("gui"), position, size);
+            _uiPause.Render(ShaderLoader.GetInstance().GetShader("gui"));
         }
 
         public override void OnUpdateFrame(double deltaTime)
@@ -46,12 +54,6 @@ namespace SharpWoxel.states
 
         public override void Resume()
         {
-        }
-
-        public override void Setup()
-        {
-            // Release the mouse from the window
-            _gameRef.CursorState = CursorState.Normal;
         }
     }
 }

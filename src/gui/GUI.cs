@@ -7,17 +7,6 @@ namespace SharpWoxel.gui
         private static GUI _instance = new GUI();
         private Matrix4 _ortho = Matrix4.Identity;
         private bool _initialized;
-        private Rect? _rectangle;
-
-        public Rect Rectangle
-        {
-            get
-            {
-                if (_rectangle == null)
-                    throw new Exception("[GUI]: Rectangle not created");
-                return _rectangle;
-            }
-        }
 
         static GUI()
         {
@@ -32,7 +21,6 @@ namespace SharpWoxel.gui
         {
             // jer je bottom 0 a top height, (0,0) je doljnji lijevi kut, a (width,height) gornji desni (opet OpenTK ne radi s obrnutim idk why)
             _instance._ortho = Matrix4.CreateOrthographicOffCenter(0.0f, (float)screenWidth, 0.0f, (float)screenHeight, -1.0f, 1.0f);
-            _instance._rectangle = new Rect(_instance._ortho);
             _instance._initialized = true;
         }
 

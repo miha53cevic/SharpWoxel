@@ -1,21 +1,15 @@
-﻿using glObjects;
-using OpenTK.Mathematics;
-using SharpWoxel.world.blocks;
+﻿using SharpWoxel.world.blocks;
 
 namespace SharpWoxel.player.inventory
 {
     class Inventory
     {
         private InventoryItem[] _items;
-        private Vector2i _position;
-        private Vector2i _itemSize;
         private int _currentlySelected;
 
-        public Inventory(int inventorySize, Vector2i position, Vector2i itemSize)
+        public Inventory(int inventorySize)
         {
             _items = new InventoryItem[inventorySize];
-            _position = position;
-            _itemSize = itemSize;
 
             for (int i = 0; i < _items.Length; i++)
             {
@@ -46,6 +40,11 @@ namespace SharpWoxel.player.inventory
             _items[index].Item = item;
         }
 
+        public InventoryItem[] GetInventoryItems()
+        {
+            return _items;
+        }
+
         public void SelectNext()
         {
             if (_currentlySelected == _items.Length - 1)
@@ -60,16 +59,6 @@ namespace SharpWoxel.player.inventory
                 UpdateSelection(_items.Length - 1);
             else
                 UpdateSelection(_currentlySelected - 1);
-        }
-
-        public void Render(Shader shader)
-        {
-            var pos = new Vector2i(_position.X, _position.Y);
-            foreach (var item in _items)
-            {
-                item.Render(shader, pos, _itemSize);
-                pos += (_itemSize.X, 0);
-            }
         }
     }
 }

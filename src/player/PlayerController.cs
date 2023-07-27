@@ -13,14 +13,15 @@ namespace SharpWoxel.player
         public float Sensetivity { get; set; }
         public Inventory PlayerInventory { get; private set; }
 
-        public PlayerController(Camera camera)
+        public PlayerController(Camera camera, Inventory playerInventory)
         {
-            
             Camera = camera;
             PlayerSpeed = 10.0f;
             Sensetivity = 0.25f;
-            PlayerInventory = new Inventory(8, (0, 0), (64, 64));
+            PlayerInventory = playerInventory;
             PlayerInventory.ChangeInventoryItem(0, new GrassBlock());
+            PlayerInventory.ChangeInventoryItem(1, new DirtBlock());
+            PlayerInventory.ChangeInventoryItem(2, new WoodBlock());
         }
 
         private void HandleInput(double deltaTime, KeyboardState keyInput, MouseState mouseInput)
@@ -80,11 +81,6 @@ namespace SharpWoxel.player
         public void Update(double deltaTime, KeyboardState keyInput, MouseState mouseInput)
         {
             HandleInput(deltaTime, keyInput, mouseInput);
-        }
-
-        public void RenderInventory(Shader shader)
-        {
-            PlayerInventory.Render(shader);
         }
     }
 }
