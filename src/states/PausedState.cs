@@ -45,6 +45,7 @@ namespace SharpWoxel.states
             if (input.IsKeyPressed(Keys.Escape))
             {
                 StateManager.GetInstance().Pop();
+                return;
             }
         }
 

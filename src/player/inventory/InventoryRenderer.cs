@@ -21,12 +21,12 @@ namespace SharpWoxel.player.inventory
             _itemSize = (96, 96);
         }
 
-        public void SetInventoryPosition(Vector2i position)
+        public void SetRenderPosition(Vector2i position)
         {
             _position = position;
         }
 
-        public void SetInventoryItemSize(Vector2i size)
+        public void SetRenderItemSize(Vector2i size)
         {
             _itemSize = size;
         }

@@ -11,6 +11,9 @@ namespace SharpWoxel.world.terrain
         protected Vector3i _chunkSize;
         protected List<Chunk> _chunks;
 
+        public Vector3i TerrainSize { get => _terrainSize; }
+        public Vector3i ChunkSize { get => _chunkSize; }
+
         public Terrain(Vector3i size, Vector3i chunkSize)
         {
             _terrainSize = size; // number of chunks

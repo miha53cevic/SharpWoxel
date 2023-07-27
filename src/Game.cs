@@ -53,6 +53,7 @@ namespace SharpWoxel
             GUI.Init(RenderResolution.X, RenderResolution.Y);
             ShaderLoader.GetInstance().Load("../../../shaders/basic");
             ShaderLoader.GetInstance().Load("../../../shaders/gui");
+            ShaderLoader.GetInstance().Load("../../../shaders/voxelOutline");
 
             StateManager.GetInstance().Add(new PlayingState(this));
         }

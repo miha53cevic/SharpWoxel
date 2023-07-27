@@ -1,6 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using SharpWoxel.entities;
 using SharpWoxel.player;
 using SharpWoxel.player.inventory;
 using SharpWoxel.util;
@@ -16,6 +17,7 @@ namespace SharpWoxel.states
         private PlayerController _playerController;
         private WorldModel _world;
         private InventoryRenderer _inventoryRenderer;
+        private VoxelOutline _voxelOutline;
 
         public PlayingState(Game game) 
             : base(game)
@@ -26,8 +28,10 @@ namespace SharpWoxel.states
             var playerInventory = new Inventory(8);
             _playerController = new PlayerController(_camera, playerInventory);
             _inventoryRenderer = new InventoryRenderer(playerInventory);
-            _inventoryRenderer.SetInventoryPosition((_gameRef.RenderResolution.X / 2, 64));
+            _inventoryRenderer.SetRenderPosition((_gameRef.RenderResolution.X / 2, 64));
             _inventoryRenderer.CenterOnPosition();
+
+            _voxelOutline = new VoxelOutline();
             
             Terrain testTerrain = new TestTerrain(new Vector3i(3, 3, 3), new Vector3i(32, 32, 32));
             _world = new WorldModel(testTerrain);
@@ -64,16 +68,26 @@ namespace SharpWoxel.states
             if (input.IsKeyPressed(Keys.Escape))
             {
                 StateManager.GetInstance().Add(new PausedState(_gameRef));
+                return;
             }
 
             // Update
             _playerController.Update(deltaTime, _gameRef.KeyboardState, _gameRef.MouseState);
+
+            // Update voxelOutline Position
+            var blockPosition = _world.CastRayFirstBlockIntersection(_playerController.Camera);
+            if (blockPosition.HasValue)
+            {
+                var blockPos = blockPosition.Value;
+                _voxelOutline.Position = ((float)blockPos.X, (float)blockPos.Y, (float)blockPos.Z);
+            }
         }
 
         public override void OnRenderFrame(double deltaTime)
         {
             _world.Render(ShaderLoader.GetInstance().GetShader("basic"), _playerController.Camera);
             _inventoryRenderer.Render(ShaderLoader.GetInstance().GetShader("gui"));
+            _voxelOutline.Render(ShaderLoader.GetInstance().GetShader("voxelOutline"), _playerController.Camera);
         }
 
         public override void Pause()
