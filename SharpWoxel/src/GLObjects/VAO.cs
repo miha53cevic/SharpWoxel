@@ -1,28 +1,33 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 
-namespace SharpWoxel.GLO;
+namespace SharpWoxel.GLObjects;
 
-class VAO
+internal class Vao
 {
-    private readonly int _VAO; // readonly: can only be assigned in field or constructor
+    private readonly int _vao = GL.GenVertexArray(); // readonly: can only be assigned in field or constructor
 
-    public VAO()
+    public void Bind()
     {
-        _VAO = GL.GenVertexArray();
+        GL.BindVertexArray(_vao);
     }
 
-    public void Bind() { GL.BindVertexArray(_VAO); }
-    public void Unbind() { GL.BindVertexArray(0); }
+    public void Unbind()
+    {
+        GL.BindVertexArray(0);
+    }
 
     // size is vector size (vec3 has 3, vec2 has 2)
-    public void DefineVertexAttribPointer(VBO vbo, int attributeID, int size, int stride, int offset)
+    public void DefineVertexAttribPointer(Vbo vbo, int attributeId, int size, int stride, int offset)
     {
         Bind();
-        GL.BindBuffer(BufferTarget.ArrayBuffer, vbo.GetVBO());
-        GL.VertexAttribPointer(attributeID, size, VertexAttribPointerType.Float, false, stride, offset);
-        GL.EnableVertexAttribArray(attributeID);
+        GL.BindBuffer(BufferTarget.ArrayBuffer, vbo.GetVbo());
+        GL.VertexAttribPointer(attributeId, size, VertexAttribPointerType.Float, false, stride, offset);
+        GL.EnableVertexAttribArray(attributeId);
         Unbind();
     }
 
-    public int GetVAO() { return _VAO; }
+    public int GetVao()
+    {
+        return _vao;
+    }
 }

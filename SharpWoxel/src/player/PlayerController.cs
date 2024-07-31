@@ -1,16 +1,13 @@
 ﻿using OpenTK.Windowing.GraphicsLibraryFramework;
-using SharpWoxel.World.Blocks;
+using SharpWoxel.player.inventory;
+using SharpWoxel.util;
+using SharpWoxel.world.blocks;
 
-namespace SharpWoxel.Player;
+namespace SharpWoxel.player;
 
-class PlayerController
+internal class PlayerController
 {
-    public Util.Camera Camera { get; private set; }
-    public float PlayerSpeed { get; set; }
-    public float Sensetivity { get; set; }
-    public Inventory.PlayerInventory PlayerInventory { get; private set; }
-
-    public PlayerController(Util.Camera camera, Inventory.PlayerInventory playerInventory)
+    public PlayerController(Camera camera, PlayerInventory playerInventory)
     {
         Camera = camera;
         PlayerSpeed = 10.0f;
@@ -21,57 +18,41 @@ class PlayerController
         PlayerInventory.ChangeInventoryItem(2, new WoodBlock());
     }
 
+    public Camera Camera { get; }
+    public float PlayerSpeed { get; set; }
+    public float Sensetivity { get; set; }
+    public PlayerInventory PlayerInventory { get; }
+
     private void HandleInput(double deltaTime, KeyboardState keyInput, MouseState mouseInput)
     {
         // Keyboard inputs
-        if (keyInput.IsKeyDown(Keys.W))
-        {
-            Camera.Position += Camera.Front * (float)deltaTime * PlayerSpeed;
-        }
+        if (keyInput.IsKeyDown(Keys.W)) Camera.Position += Camera.Front * (float)deltaTime * PlayerSpeed;
 
-        if (keyInput.IsKeyDown(Keys.S))
-        {
-            Camera.Position -= Camera.Front * (float)deltaTime * PlayerSpeed;
-        }
+        if (keyInput.IsKeyDown(Keys.S)) Camera.Position -= Camera.Front * (float)deltaTime * PlayerSpeed;
 
-        if (keyInput.IsKeyDown(Keys.A))
-        {
-            Camera.Position -= Camera.Right * (float)deltaTime * PlayerSpeed;
-        }
+        if (keyInput.IsKeyDown(Keys.A)) Camera.Position -= Camera.Right * (float)deltaTime * PlayerSpeed;
 
-        if (keyInput.IsKeyDown(Keys.D))
-        {
-            Camera.Position += Camera.Right * (float)deltaTime * PlayerSpeed;
-        }
+        if (keyInput.IsKeyDown(Keys.D)) Camera.Position += Camera.Right * (float)deltaTime * PlayerSpeed;
 
-        if (keyInput.IsKeyDown(Keys.Space))
-        {
-            Camera.Position += Camera.Up * (float)deltaTime * PlayerSpeed;
-        }
+        if (keyInput.IsKeyDown(Keys.Space)) Camera.Position += Camera.Up * (float)deltaTime * PlayerSpeed;
 
-        if (keyInput.IsKeyDown(Keys.LeftControl))
-        {
-            Camera.Position -= Camera.Up * (float)deltaTime * PlayerSpeed;
-        }
+        if (keyInput.IsKeyDown(Keys.LeftControl)) Camera.Position -= Camera.Up * (float)deltaTime * PlayerSpeed;
 
-        if (keyInput.IsKeyDown(Keys.LeftShift))
-        {
-            PlayerSpeed = 20.0f;
-        }
-        else PlayerSpeed = 10.0f;
+        PlayerSpeed = keyInput.IsKeyDown(Keys.LeftShift) ? 20.0f : 10.0f;
 
         // Mouse inputs
         Camera.Yaw += mouseInput.Delta.X * Sensetivity;
         Camera.Pitch -= mouseInput.Delta.Y * Sensetivity;
 
-        // Inventory selection
-        if (mouseInput.ScrollDelta.Y < 0)
+        switch (mouseInput.ScrollDelta.Y)
         {
-            PlayerInventory.SelectNext();
-        }
-        else if (mouseInput.ScrollDelta.Y > 0)
-        {
-            PlayerInventory.SelectPrevious();
+            // Inventory selection
+            case < 0:
+                PlayerInventory.SelectNext();
+                break;
+            case > 0:
+                PlayerInventory.SelectPrevious();
+                break;
         }
     }
 

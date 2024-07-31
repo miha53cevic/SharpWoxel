@@ -1,15 +1,10 @@
 ﻿using DotnetNoise;
 
-namespace SharpWoxel.Util.Noise;
+namespace SharpWoxel.util.noise;
 
-class SimplexNoise : Noise
+internal class SimplexNoise(int seed = 1337) : Noise
 {
-    private FastNoise _noise;
-
-    public SimplexNoise(int seed = 1337)
-    {
-        _noise = new FastNoise(seed);
-    }
+    private readonly FastNoise _noise = new(seed);
 
     protected override float NoiseImplementation2(float x, float y)
     {

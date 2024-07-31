@@ -3,130 +3,115 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using SharpWoxel.Gui;
-using SharpWoxel.ImGUI;
-using SharpWoxel.States;
-using SharpWoxel.Util;
+using SharpWoxel.gui;
+using SharpWoxel.imgui;
+using SharpWoxel.states;
+using SharpWoxel.util;
 
-namespace SharpWoxel
+namespace SharpWoxel;
+
+internal class Game(int width, int height, string title) : GameWindow(GameWindowSettings.Default,
+    new NativeWindowSettings { ClientSize = (width, height), Title = title })
 {
-    class Game : GameWindow
+    private bool _wireframe;
+
+    public Vector2i RenderResolution = new(width, height);
+
+    private void ToggleWireFrame()
     {
-        private bool _wireframe = false;
-        
-        public Vector2i RenderResolution;
+        _wireframe = !_wireframe;
+        GL.PolygonMode(MaterialFace.FrontAndBack, _wireframe ? PolygonMode.Line : PolygonMode.Fill);
+    }
 
-        public Game(int width, int height, string title)
-            : base(GameWindowSettings.Default, new NativeWindowSettings() { ClientSize = (width, height), Title = title })
-        {
-            RenderResolution = new Vector2i(width, height);
-        }
+    public void SetClearColour(int r, int g, int b, int a)
+    {
+        var red = r / 255.0f;
+        var green = g / 255.0f;
+        var blue = b / 255.0f;
+        var alpha = a / 255.0f;
+        GL.ClearColor(red, green, blue, alpha);
+    }
 
-        private void ToggleWireFrame()
-        {
-            _wireframe = !_wireframe;
+    protected override void OnLoad()
+    {
+        base.OnLoad();
 
-            if (_wireframe) GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-            else            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-        }
+        GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
-        public void SetClearColour(int r, int g, int b, int a)
-        {
-            float red = (float)r / 255.0f;
-            float green = (float)g / 255.0f;
-            float blue = (float)b / 255.0f;
-            float alpha = (float)a / 255.0f;
-            GL.ClearColor(red, green, blue, alpha);
-        }
+        GL.Enable(EnableCap.DepthTest);
+        GL.Enable(EnableCap.CullFace); // Cull faces (render only triangles that are counter-clockwise)
 
-        protected override void OnLoad()
-        {
-            base.OnLoad();
+        ImGuiSingleton.GetInstance().Load(Size.X, Size.Y);
 
-            GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        Gui.Init(RenderResolution.X, RenderResolution.Y);
+        ShaderLoader.GetInstance().Load("../../../shaders/basic");
+        ShaderLoader.GetInstance().Load("../../../shaders/gui");
+        ShaderLoader.GetInstance().Load("../../../shaders/voxelOutline");
 
-            GL.Enable(EnableCap.DepthTest);
-            GL.Enable(EnableCap.CullFace); // Cull faces (render only triangles that are counter-clockwise)
+        StateManager.GetInstance().Add(new PlayingState(this));
+    }
 
-            ImGuiSingleton.GetInstance().Load(Size.X, Size.Y);
+    protected override void OnUnload()
+    {
+        base.OnUnload();
 
-            GUI.Init(RenderResolution.X, RenderResolution.Y);
-            ShaderLoader.GetInstance().Load("../../../shaders/basic");
-            ShaderLoader.GetInstance().Load("../../../shaders/gui");
-            ShaderLoader.GetInstance().Load("../../../shaders/voxelOutline");
+        ImGuiSingleton.GetInstance().Destroy();
 
-            StateManager.GetInstance().Add(new PlayingState(this));
-        }
-        protected override void OnUnload()
-        {
-            base.OnUnload();
+        // Dispose of all loaded shaders
+        ShaderLoader.GetInstance().Destroy();
+        // Clear all states
+        StateManager.GetInstance().Destroy();
+    }
 
-            ImGuiSingleton.GetInstance().Destroy();
+    protected override void OnResize(ResizeEventArgs e)
+    {
+        base.OnResize(e);
 
-            // Dispose of all loaded shaders
-            ShaderLoader.GetInstance().Destroy();
-            // Clear all states
-            StateManager.GetInstance().Destroy();
-        }
+        GL.Viewport(0, 0, e.Width, e.Height);
 
-        protected override void OnResize(ResizeEventArgs e)
-        {
-            base.OnResize(e);
+        ImGuiSingleton.GetInstance().OnResize(e.Width, e.Height);
+    }
 
-            GL.Viewport(0, 0, e.Width, e.Height);
+    // Rendering/Drawing updates
+    protected override void OnRenderFrame(FrameEventArgs args)
+    {
+        base.OnRenderFrame(args);
 
-            ImGuiSingleton.GetInstance().OnResize(e.Width, e.Height);
-        }
+        Title = $"SharpWoxel - FPS: {1.0f / args.Time:0.00}";
 
-        // Rendering/Drawing updates
-        protected override void OnRenderFrame(FrameEventArgs args)
-        {
-            base.OnRenderFrame(args);
+        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            Title = string.Format("SharpWoxel - FPS: {0:0.00}", 1.0f / args.Time);
-            
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        // Render Code
+        StateManager.GetInstance().GetActiveStates().ForEach(state => state.OnRenderFrame(args.Time));
 
-            // Render Code
-            StateManager.GetInstance().GetActiveStates().ForEach(state => state.OnRenderFrame(args.Time));
+        SwapBuffers();
+    }
 
-            SwapBuffers();
-        }
+    // Fixed updates
+    protected override void OnUpdateFrame(FrameEventArgs args)
+    {
+        base.OnUpdateFrame(args);
 
-        // Fixed updates
-        protected override void OnUpdateFrame(FrameEventArgs args)
-        {
-            base.OnUpdateFrame(args);
+        if (KeyboardState.IsKeyPressed(Keys.Tab)) ToggleWireFrame();
+        if (KeyboardState.IsKeyPressed(Keys.P))
+            if (StateManager.GetInstance().GetCurrentState().GetType() != typeof(ImGuiOverlayState))
+                StateManager.GetInstance().Add(new ImGuiOverlayState(this));
 
-            var input = KeyboardState;
-            if (input.IsKeyPressed(Keys.Tab))
-            {
-                ToggleWireFrame();
-            }
-            if (input.IsKeyPressed(Keys.P))
-            {
-                if (StateManager.GetInstance().GetCurrentState().GetType() != typeof(ImGuiOverlayState))
-                {
-                    StateManager.GetInstance().Add(new ImGuiOverlayState(this));
-                }
-            }
+        // Fixed updates code
+        StateManager.GetInstance().GetActiveStates().ForEach(state => state.OnUpdateFrame(args.Time));
+    }
 
-            // Fixed updates code
-            StateManager.GetInstance().GetActiveStates().ForEach(state => state.OnUpdateFrame(args.Time));
-        }
+    protected override void OnTextInput(TextInputEventArgs e)
+    {
+        base.OnTextInput(e);
 
-        protected override void OnTextInput(TextInputEventArgs e)
-        {
-            base.OnTextInput(e);
+        ImGuiSingleton.GetInstance().OnTextInput((char)e.Unicode);
+    }
 
-            ImGuiSingleton.GetInstance().OnTextInput((char)e.Unicode);
-        }
+    protected override void OnMouseWheel(MouseWheelEventArgs e)
+    {
+        base.OnMouseWheel(e);
 
-        protected override void OnMouseWheel(MouseWheelEventArgs e)
-        {
-            base.OnMouseWheel(e);
-
-            ImGuiSingleton.GetInstance().OnMouseScroll(e.Offset);
-        }
+        ImGuiSingleton.GetInstance().OnMouseScroll(e.Offset);
     }
 }

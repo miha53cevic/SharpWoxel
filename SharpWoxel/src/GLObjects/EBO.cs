@@ -1,24 +1,18 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 
-namespace SharpWoxel.GLO;
+namespace SharpWoxel.GLObjects;
 
-class EBO
+internal class Ebo
 {
-    private readonly int _EBO;
+    private readonly int _ebo = GL.GenBuffer();
 
-    public EBO()
-    {
-        _EBO = GL.GenBuffer();
-        Size = 0;
-    }
+    public int Size { get; private set; } = 0;
 
     public void SetElementBufferData(uint[] data, BufferUsageHint usage)
     {
-        GL.BindBuffer(BufferTarget.ElementArrayBuffer, _EBO);
+        GL.BindBuffer(BufferTarget.ElementArrayBuffer, _ebo);
         GL.BufferData(BufferTarget.ElementArrayBuffer, data.Length * sizeof(uint), data, usage);
 
         Size = data.Length;
     }
-
-    public int Size { get; private set; }
 }

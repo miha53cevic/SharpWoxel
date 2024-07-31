@@ -1,32 +1,24 @@
 ﻿using OpenTK.Graphics.OpenGL4;
-using SharpWoxel.GLO;
-using SharpWoxel.Util;
+using SharpWoxel.GLObjects;
+using SharpWoxel.util;
 
-namespace SharpWoxel.Entities;
+namespace SharpWoxel.entities;
 
-class SimpleEntity : Entity
+internal class SimpleEntity(string texturePath) : Entity
 {
-    private readonly Texture _texture;
-    private readonly VAO _vao;
-    private readonly EBO _ebo;
-    private readonly List<VBO> _vbos;
+    private readonly Ebo _ebo = new();
+    private readonly Texture _texture = Texture.LoadFromFile(texturePath);
+    private readonly Vao _vao = new();
+    private readonly List<Vbo> _vbos = new();
 
-    private bool _loadedEBO = false;
-    private bool _loadedVerticies = false;
-    private bool _loadedTextureCoords = false;
-
-    public SimpleEntity(string texturePath)
-    {
-        _texture = GLO.Texture.LoadFromFile(texturePath);
-        _vao = new VAO();
-        _ebo = new EBO();
-        _vbos = new List<VBO>();
-    }
+    private bool _loadedEbo;
+    private bool _loadedTextureCoords;
+    private bool _loadedVerticies;
 
     public void SetVerticies(float[] data, BufferUsageHint usage)
     {
         _vao.Bind();
-        var vbo = new VBO();
+        var vbo = new Vbo();
         vbo.SetBufferData(data, usage);
         _vbos.Add(vbo);
         _vao.Unbind();
@@ -46,13 +38,13 @@ class SimpleEntity : Entity
         _ebo.SetElementBufferData(data, usage);
         _vao.Unbind();
 
-        _loadedEBO = true;
+        _loadedEbo = true;
     }
 
     public void SetTextureCoords(float[] data, BufferUsageHint usage)
     {
         _vao.Bind();
-        var vbo = new VBO();
+        var vbo = new Vbo();
         vbo.SetBufferData(data, usage);
         _vbos.Add(vbo);
         _vao.Unbind();
@@ -74,11 +66,12 @@ class SimpleEntity : Entity
             Rotation,
             Scale
         );
-        shader.SetMatrix4(shader.GetUniformLocation("mvp"), Maths.CreateMVPMatrix(camera, model));
+        shader.SetMatrix4(shader.GetUniformLocation("mvp"), Maths.CreateMvpMatrix(camera, model));
     }
+
     public override void Render(Shader shader, Camera camera)
     {
-        if (!_loadedVerticies || !_loadedTextureCoords || !_loadedEBO)
+        if (!_loadedVerticies || !_loadedTextureCoords || !_loadedEbo)
             throw new Exception("[SimpleEntity]: Not fully initialized");
 
         PrepRender(shader, camera);

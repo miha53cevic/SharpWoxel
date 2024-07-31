@@ -1,26 +1,19 @@
 ﻿using OpenTK.Mathematics;
 
-namespace SharpWoxel.Util;
+namespace SharpWoxel.util;
 
-class Ray
+internal class Ray(Vector3 start, Vector3 direction)
 {
-    private Vector3 _start;
-    private Vector3 _end;
-    private Vector3 _direction;
+    private Vector3 _end = start;
+    private readonly Vector3 _start = start;
 
     // start - the start position of the ray
     // direction - the direction in which the ray is cast (must be unit vector)
-    public Ray(Vector3 start, Vector3 direction)
-    {
-        _start = start;
-        _end = start;
-        _direction = direction;
-    }
 
     // samller values in scale, means more precision but takes longer for the for loop to finish
     public void Step(float scale)
     {
-        _end += _direction * scale;
+        _end += direction * scale;
     }
 
     public Vector3 GetEnd()

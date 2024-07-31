@@ -1,21 +1,19 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 
-namespace SharpWoxel.GLO;
+namespace SharpWoxel.GLObjects;
 
-class VBO
+internal class Vbo
 {
-    private readonly int _VBO;
-
-    public VBO()
-    {
-        _VBO = GL.GenBuffer();
-    }
+    private readonly int _vbo = GL.GenBuffer();
 
     public void SetBufferData(float[] data, BufferUsageHint usage)
     {
-        GL.BindBuffer(BufferTarget.ArrayBuffer, _VBO);
+        GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
         GL.BufferData(BufferTarget.ArrayBuffer, data.Length * sizeof(float), data, usage);
     }
 
-    public int GetVBO() { return _VBO; }
+    public int GetVbo()
+    {
+        return _vbo;
+    }
 }

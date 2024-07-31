@@ -1,31 +1,23 @@
 ﻿using OpenTK.Mathematics;
-using SharpWoxel.Util;
+using SharpWoxel.util;
 
-namespace SharpWoxel.World.Blocks;
+namespace SharpWoxel.world.blocks;
 
-class GrassBlock : IBlock
+internal class GrassBlock : IBlock
 {
     public Vector2i GetFaceTextureAtlasCoordinates(Cube.Face face)
     {
-        var coords = new Vector2i();
-
-        switch (face)
+        Vector2i coords = face switch
         {
-            case Cube.Face.TOP:
-                coords = (0, 0);
-                break;
-            case Cube.Face.BOTTOM:
-                coords = (2, 0);
-                break;
-            default:
-                coords = (1, 0);
-                break;
-        }
+            Cube.Face.Top => (0, 0),
+            Cube.Face.Bottom => (2, 0),
+            _ => (1, 0)
+        };
 
         return coords;
     }
 
-    public string GetID()
+    public string GetId()
     {
         return "grass_block";
     }

@@ -1,17 +1,17 @@
-﻿using SharpWoxel.World.Blocks;
+﻿using SharpWoxel.world.blocks;
 
-namespace SharpWoxel.Player.Inventory;
+namespace SharpWoxel.player.inventory;
 
-class InventoryItem
+internal class InventoryItem
 {
-    public IBlock? Item { get; set; }
-    public bool Selected { get; set; }
-    public int Count { get; set; }
-
     public InventoryItem(IBlock? block)
     {
         Item = block;
         Selected = false;
         Count = 0;
     }
+
+    public IBlock? Item { get; set; }
+    public bool Selected { get; set; }
+    public int Count { get; set; }
 }

@@ -1,46 +1,49 @@
 ﻿using OpenTK.Graphics.OpenGL4;
-using SharpWoxel.GLO;
-using SharpWoxel.Util;
+using SharpWoxel.GLObjects;
+using SharpWoxel.util;
 
-namespace SharpWoxel.Entities;
-class VoxelOutline : Entity
+namespace SharpWoxel.entities;
+
+internal class VoxelOutline : Entity
 {
-    private readonly VAO _vao;
-    private readonly VBO _vbo;
-    private readonly EBO _ebo;
+    public static float[] Verticies =
+    [
+        0f, 1f, 1f,
+        0f, 1f, 0f,
+        1f, 1f, 0f,
+        1f, 1f, 1f,
 
-    public static float[] Verticies = {
-            0f,1f,1f,
-            0f,1f,0f,
-            1f,1f,0f,
-            1f,1f,1f,
+        0f, 0f, 1f,
+        0f, 0f, 0f,
+        1f, 0f, 0f,
+        1f, 0f, 1f
+    ];
 
-            0f,0f,1f,
-            0f,0f,0f,
-            1f,0f,0f,
-            1f,0f,1f
-        };
+    public static uint[] Indicies =
+    [
+        0, 1,
+        1, 2,
+        2, 3,
+        3, 0,
+        4, 5,
+        5, 6,
+        6, 7,
+        7, 4,
+        0, 4,
+        1, 5,
+        2, 6,
+        3, 7
+    ];
 
-    public static uint[] Indicies = {
-            0, 1,
-            1, 2,
-            2, 3,
-            3, 0,
-            4, 5,
-            5, 6,
-            6, 7,
-            7, 4,
-            0, 4,
-            1, 5,
-            2, 6,
-            3, 7
-        };
+    private readonly Ebo _ebo;
+    private readonly Vao _vao;
+    private readonly Vbo _vbo;
 
     public VoxelOutline()
     {
-        _vao = new VAO();
-        _vbo = new VBO();
-        _ebo = new EBO();
+        _vao = new Vao();
+        _vbo = new Vbo();
+        _ebo = new Ebo();
 
         _vao.Bind();
         _vbo.SetBufferData(Verticies, BufferUsageHint.StaticDraw);
@@ -60,7 +63,7 @@ class VoxelOutline : Entity
             Rotation,
             Scale
         );
-        shader.SetMatrix4(shader.GetUniformLocation("mvp"), Maths.CreateMVPMatrix(camera, model));
+        shader.SetMatrix4(shader.GetUniformLocation("mvp"), Maths.CreateMvpMatrix(camera, model));
 
         _vao.Bind();
         GL.DrawElements(BeginMode.Lines, _ebo.Size, DrawElementsType.UnsignedInt, 0);

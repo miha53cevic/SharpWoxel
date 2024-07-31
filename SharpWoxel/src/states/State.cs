@@ -1,14 +1,8 @@
-﻿
-namespace SharpWoxel.States;
+﻿namespace SharpWoxel.states;
 
-abstract class State
+internal abstract class State(Game game)
 {
-    protected Game _gameRef;
-
-    public State(Game game)
-    {
-        _gameRef = game;
-    }
+    protected readonly Game GameRef = game;
 
     public abstract void Setup();
     public abstract void OnUpdateFrame(double deltaTime); // fixed updates

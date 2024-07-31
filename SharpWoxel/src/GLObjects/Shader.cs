@@ -1,32 +1,39 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
-namespace SharpWoxel.GLO;
+namespace SharpWoxel.GLObjects;
 
-class Shader : IDisposable
+internal sealed class Shader : IDisposable
 {
-    private int _handle = -1;
-    private bool disposedValue = false;
-    private readonly string _vertexPath;
     private readonly string _fragmentPath;
+    private readonly string _vertexPath;
+    private int _handle = -1;
+    private bool _disposedValue;
 
     public Shader(string vertexPath, string fragmentPath)
     {
-        this._vertexPath = vertexPath;
-        this._fragmentPath = fragmentPath;
+        _vertexPath = vertexPath;
+        _fragmentPath = fragmentPath;
 
-        this.CompileShader();
+        CompileShader();
+    }
+
+    public void Dispose()
+    {
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 
     private void CompileShader()
     {
-        string vertexShaderSrc = File.ReadAllText(this._vertexPath);
-        string fragmentShaderSrc = File.ReadAllText(this._fragmentPath);
+        var vertexShaderSrc = File.ReadAllText(_vertexPath);
+        var fragmentShaderSrc = File.ReadAllText(_fragmentPath);
 
-        int vertexShader = GL.CreateShader(ShaderType.VertexShader);
+        var vertexShader = GL.CreateShader(ShaderType.VertexShader);
         GL.ShaderSource(vertexShader, vertexShaderSrc);
 
-        int fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
+        var fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
         GL.ShaderSource(fragmentShader, fragmentShaderSrc);
 
         int success;
@@ -34,7 +41,7 @@ class Shader : IDisposable
         GL.GetShader(vertexShader, ShaderParameter.CompileStatus, out success);
         if (success == 0)
         {
-            string infoLog = GL.GetShaderInfoLog(vertexShader);
+            var infoLog = GL.GetShaderInfoLog(vertexShader);
             throw new Exception(infoLog);
         }
 
@@ -42,7 +49,7 @@ class Shader : IDisposable
         GL.GetShader(fragmentShader, ShaderParameter.CompileStatus, out success);
         if (success == 0)
         {
-            string infoLog = GL.GetShaderInfoLog(fragmentShader);
+            var infoLog = GL.GetShaderInfoLog(fragmentShader);
             throw new Exception(infoLog);
         }
 
@@ -52,10 +59,7 @@ class Shader : IDisposable
         GL.LinkProgram(_handle);
 
         GL.GetProgram(_handle, GetProgramParameterName.LinkStatus, out success);
-        if (success == 0)
-        {
-            throw new Exception(string.Format("[Shader]: Link error"));
-        }
+        if (success == 0) throw new Exception("[Shader]: Link error");
 
         // Cleanup, since they are linked now to the shader program
         GL.DetachShader(_handle, vertexShader);
@@ -63,42 +67,39 @@ class Shader : IDisposable
         GL.DeleteShader(vertexShader);
         GL.DeleteShader(fragmentShader);
 
-        GL.GetProgram(_handle, GetProgramParameterName.ActiveUniforms, out int count);
-        Console.WriteLine(string.Format("[Shader]: Loaded {0} uniforms", count));
+        GL.GetProgram(_handle, GetProgramParameterName.ActiveUniforms, out var count);
+        Console.WriteLine("[Shader]: Loaded {0} uniforms", count);
     }
 
     public void Reload()
     {
-        Console.WriteLine(string.Format("[Shader]: Hot Reload {0}, {1}", this._vertexPath, this._fragmentPath));
-        
-        int oldProgramHandle = this._handle;
-        try {
-            this.CompileShader();
-            GL.DeleteProgram(oldProgramHandle);
-        } catch(Exception ex)
+        Console.WriteLine("[Shader]: Hot Reload {0}, {1}", _vertexPath, _fragmentPath);
+
+        var oldProgramHandle = _handle;
+        try
         {
-            this._handle = oldProgramHandle;
-            Console.WriteLine(string.Format("[Shader]: Could not compile new shader source on hot reload, {0}", ex.Message));
+            CompileShader();
+            GL.DeleteProgram(oldProgramHandle);
+        }
+        catch (Exception ex)
+        {
+            _handle = oldProgramHandle;
+            Console.WriteLine("[Shader]: Could not compile new shader source on hot reload, {0}", ex.Message);
         }
     }
 
     public void Use()
     {
-        GL.UseProgram(this._handle);
+        GL.UseProgram(_handle);
     }
 
     public int GetUniformLocation(string name)
     {
-        if (_handle == -1)
-        {
-            throw new Exception("[Shader]: _handle is -1");
-        }
+        if (_handle == -1) throw new Exception("[Shader]: _handle is -1");
 
-        int location = GL.GetUniformLocation(_handle, name);
+        var location = GL.GetUniformLocation(_handle, name);
         if (location == -1)
-        {
-            throw new Exception(string.Format("[Shader]: Found no location for the uniform: {0}", name));
-        }
+            throw new Exception($"[Shader]: Found no location for the uniform: {name}");
 
         return location;
     }
@@ -133,32 +134,25 @@ class Shader : IDisposable
         GL.Uniform2(location, data);
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
         // If disposed is called twice, only run if value has not been already disposed
-        if (!disposedValue)
+        if (!_disposedValue)
         {
             // If the user called Dispose() on the object
             if (disposing)
-            {
                 GL.DeleteProgram(_handle);
-            }
-            else throw new Exception("GPU Resource leak! Did you forget to call Dispose()?"); // If the deconstructor called Dispose()
+            else
+                throw new Exception(
+                    "GPU Resource leak! Did you forget to call Dispose()?"); // If the deconstructor called Dispose()
 
-            disposedValue = true;
+            _disposedValue = true;
         }
     }
 
     ~Shader()
     {
         // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        Dispose(disposing: false);
-    }
-
-    public void Dispose()
-    {
-        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
+        Dispose(false);
     }
 }

@@ -1,19 +1,19 @@
 ﻿using OpenTK.Graphics.OpenGL4;
-using PixelFormat = OpenTK.Graphics.OpenGL4.PixelFormat;
 using StbImageSharp;
+using PixelFormat = OpenTK.Graphics.OpenGL4.PixelFormat;
 
-namespace SharpWoxel.GLO;
+namespace SharpWoxel.GLObjects;
 
 // Taken from
 // https://github.com/opentk/LearnOpenTK/blob/master/Common/Texture.cs
-class Texture
+internal class Texture(int glHandle)
 {
-    public readonly int Handle;
+    public readonly int Handle = glHandle;
 
     public static Texture LoadFromFile(string path)
     {
         // Generate handle
-        int handle = GL.GenTexture();
+        var handle = GL.GenTexture();
 
         // Bind the handle
         GL.ActiveTexture(TextureUnit.Texture0);
@@ -26,7 +26,7 @@ class Texture
         // Here we open a stream to the file and pass it to StbImageSharp to load.
         using (Stream stream = File.OpenRead(path))
         {
-            ImageResult image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
+            var image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
 
             // Now that our pixels are prepared, it's time to generate a texture. We do this with GL.TexImage2D.
             // Arguments:
@@ -39,7 +39,8 @@ class Texture
             //   The format of the pixels, explained above. Since we loaded the pixels as RGBA earlier, we need to use PixelFormat.Rgba.
             //   Data type of the pixels.
             //   And finally, the actual pixels.
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0,
+                PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);
         }
 
         // Now that our texture is loaded, we can set a few settings to affect how the image appears on rendering.
@@ -67,11 +68,6 @@ class Texture
         GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
 
         return new Texture(handle);
-    }
-
-    public Texture(int glHandle)
-    {
-        Handle = glHandle;
     }
 
     // Activate texture

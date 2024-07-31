@@ -1,10 +1,11 @@
-﻿
-namespace SharpWoxel.Util;
+﻿using SharpWoxel.GLObjects;
 
-class ShaderLoader
+namespace SharpWoxel.util;
+
+internal class ShaderLoader
 {
-    private static readonly ShaderLoader _instance = new ShaderLoader();
-    private readonly Dictionary<string, GLO.Shader> _loadedShaders;
+    private static readonly ShaderLoader Instance = new();
+    private readonly Dictionary<string, Shader> _loadedShaders;
 
     static ShaderLoader()
     {
@@ -12,36 +13,36 @@ class ShaderLoader
 
     private ShaderLoader()
     {
-        _loadedShaders = new Dictionary<string, GLO.Shader>();
+        _loadedShaders = new Dictionary<string, Shader>();
     }
 
-    public static ShaderLoader GetInstance() { return _instance; }
+    public static ShaderLoader GetInstance()
+    {
+        return Instance;
+    }
 
     // Shader path withouth the .vert/.frag extension
     public void Load(string path)
     {
-        string name = path.Split("/").Last();
+        var name = path.Split("/").Last();
 
-        var shader = new GLO.Shader(path + ".vert", path + ".frag");
+        var shader = new Shader(path + ".vert", path + ".frag");
         _loadedShaders.Add(name, shader);
 
-        Console.WriteLine(string.Format("[ShaderLoader]: Loaded {0} shader", name));
+        Console.WriteLine("[ShaderLoader]: Loaded {0} shader", name);
     }
 
-    public GLO.Shader GetShader(string name)
+    public Shader GetShader(string name)
     {
-        bool exists = _loadedShaders.ContainsKey(name);
+        var exists = _loadedShaders.ContainsKey(name);
         if (!exists)
-            throw new Exception(string.Format("Shader: {0} does not exist in loadedShaders", name));
-        return _instance._loadedShaders[name];
+            throw new Exception($"Shader: {name} does not exist in loadedShaders");
+        return Instance._loadedShaders[name];
     }
 
     public void Destroy()
     {
-        foreach (var entry in _loadedShaders)
-        {
-            entry.Value.Dispose();
-        }
-        _instance._loadedShaders.Clear();
+        foreach (var entry in _loadedShaders) entry.Value.Dispose();
+        Instance._loadedShaders.Clear();
     }
 }

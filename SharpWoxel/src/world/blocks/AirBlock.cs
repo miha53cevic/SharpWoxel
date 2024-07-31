@@ -1,16 +1,16 @@
 ﻿using OpenTK.Mathematics;
-using SharpWoxel.Util;
+using SharpWoxel.util;
 
-namespace SharpWoxel.World.Blocks;
+namespace SharpWoxel.world.blocks;
 
-class AirBlock : IBlock
+internal class AirBlock : IBlock
 {
     public Vector2i GetFaceTextureAtlasCoordinates(Cube.Face face)
     {
         throw new NotImplementedException();
     }
 
-    public string GetID()
+    public string GetId()
     {
         return "air_block";
     }

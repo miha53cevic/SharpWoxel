@@ -1,25 +1,21 @@
 ﻿using OpenTK.Mathematics;
-using SharpWoxel.Util;
+using SharpWoxel.util;
 
-namespace SharpWoxel.World.Blocks;
+namespace SharpWoxel.world.blocks;
 
-class StoneBlock : IBlock
+internal class StoneBlock : IBlock
 {
     public Vector2i GetFaceTextureAtlasCoordinates(Cube.Face face)
     {
-        var coords = new Vector2i();
-
-        switch (face)
+        var coords = face switch
         {
-            default:
-                coords = (3, 0);
-                break;
-        }
+            _ => (3, 0)
+        };
 
         return coords;
     }
 
-    public string GetID()
+    public string GetId()
     {
         return "stone_block";
     }

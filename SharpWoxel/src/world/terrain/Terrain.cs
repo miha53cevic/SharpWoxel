@@ -1,70 +1,64 @@
 ﻿using OpenTK.Mathematics;
-using SharpWoxel.GLO;
-using SharpWoxel.Util;
-using SharpWoxel.World.Blocks;
+using SharpWoxel.GLObjects;
+using SharpWoxel.util;
+using SharpWoxel.world.blocks;
 
-namespace SharpWoxel.World.Terrain;
+namespace SharpWoxel.world.terrain;
 
-abstract class BaseTerrain
+internal abstract class BaseTerrain
 {
-    protected Vector3i _terrainSize; // the size of the world
-    protected Vector3i _chunkSize;
-    protected List<Chunk> _chunks;
+    public readonly List<Chunk> ChunksList;
+    public Vector3i NumberOfChunks;
+    public Vector3i ChunkSize;
 
-    public Vector3i TerrainSize { get => _terrainSize; }
-    public Vector3i ChunkSize { get => _chunkSize; }
-
-    public BaseTerrain(Vector3i size, Vector3i chunkSize)
+    protected BaseTerrain(Vector3i numberOfChunks, Vector3i chunkSize)
     {
-        _terrainSize = size; // number of chunks
-        _chunkSize = chunkSize;
-        _chunks = new List<Chunk>();
+        ChunksList = new List<Chunk>();
+        NumberOfChunks = numberOfChunks; // number of chunks
+        ChunkSize = chunkSize;
 
         // Create chunks
         // Bitan redosljed za IndexFrom3D, mora biti x,y,z for loop order
-        for (int x = 0; x < size.X; x++)
+        for (var x = 0; x < numberOfChunks.X; x++)
+        for (var y = 0; y < numberOfChunks.Y; y++)
+        for (var z = 0; z < numberOfChunks.Z; z++)
         {
-            for (int y = 0; y < size.Y; y++)
-            {
-                for (int z = 0; z < size.Z; z++)
-                {
-                    Vector3 position = new Vector3i(chunkSize.X * x, chunkSize.Y * y, chunkSize.Z * z);
-                    _chunks.Add(new Chunk(position, chunkSize));
-                }
-            }
+            Vector3 position = new Vector3i(chunkSize.X * x, chunkSize.Y * y, chunkSize.Z * z);
+            ChunksList.Add(new Chunk(position, chunkSize));
         }
 
         // Set each chunks neighbours
-        for (int x = 0; x < size.X; x++)
+        for (var x = 0; x < numberOfChunks.X; x++)
+        for (var y = 0; y < numberOfChunks.Y; y++)
+        for (var z = 0; z < numberOfChunks.Z; z++)
         {
-            for (int y = 0; y < size.Y; y++)
-            {
-                for (int z = 0; z < size.Z; z++)
-                {
-                    bool left = false, right = false, front = false, back = false, top = false, bottom = false; // hasNeighbouring chunk
-                    if (x != 0) left = true;
-                    if (y != 0) bottom = true;
-                    if (z != 0) back = true;
-                    if (x != size.X - 1) right = true;
-                    if (y != size.Y - 1) top = true;
-                    if (z != size.Z - 1) front = true;
+            bool left = false,
+                right = false,
+                front = false,
+                back = false,
+                top = false,
+                bottom = false; // hasNeighbouring chunk
+            if (x != 0) left = true;
+            if (y != 0) bottom = true;
+            if (z != 0) back = true;
+            if (x != numberOfChunks.X - 1) right = true;
+            if (y != numberOfChunks.Y - 1) top = true;
+            if (z != numberOfChunks.Z - 1) front = true;
 
-                    // boolean values tell us if a given chunk can have a neighbour on that side and if it can
-                    // we add a reference to that neighbour to the given chunk
-                    if (left)
-                        GetChunkFromLocal(x, y, z).SetNeighbour(NeighbourDirection.WEST, GetChunkFromLocal(x - 1, y, z));
-                    if (right)
-                        GetChunkFromLocal(x, y, z).SetNeighbour(NeighbourDirection.EAST, GetChunkFromLocal(x + 1, y, z));
-                    if (back)
-                        GetChunkFromLocal(x, y, z).SetNeighbour(NeighbourDirection.NORTH, GetChunkFromLocal(x, y, z - 1));
-                    if (front)
-                        GetChunkFromLocal(x, y, z).SetNeighbour(NeighbourDirection.SOUTH, GetChunkFromLocal(x, y, z + 1));
-                    if (top)
-                        GetChunkFromLocal(x, y, z).SetNeighbour(NeighbourDirection.ABOVE, GetChunkFromLocal(x, y + 1, z));
-                    if (bottom)
-                        GetChunkFromLocal(x, y, z).SetNeighbour(NeighbourDirection.BELOW, GetChunkFromLocal(x, y - 1, z));
-                }
-            }
+            // boolean values tell us if a given chunk can have a neighbour on that side and if it can
+            // we add a reference to that neighbour to the given chunk
+            if (left)
+                GetChunkFromLocal(x, y, z).SetNeighbour(NeighbourDirection.West, GetChunkFromLocal(x - 1, y, z));
+            if (right)
+                GetChunkFromLocal(x, y, z).SetNeighbour(NeighbourDirection.East, GetChunkFromLocal(x + 1, y, z));
+            if (back)
+                GetChunkFromLocal(x, y, z).SetNeighbour(NeighbourDirection.North, GetChunkFromLocal(x, y, z - 1));
+            if (front)
+                GetChunkFromLocal(x, y, z).SetNeighbour(NeighbourDirection.South, GetChunkFromLocal(x, y, z + 1));
+            if (top)
+                GetChunkFromLocal(x, y, z).SetNeighbour(NeighbourDirection.Above, GetChunkFromLocal(x, y + 1, z));
+            if (bottom)
+                GetChunkFromLocal(x, y, z).SetNeighbour(NeighbourDirection.Below, GetChunkFromLocal(x, y - 1, z));
         }
     }
 
@@ -75,26 +69,20 @@ abstract class BaseTerrain
     public virtual void GenerateTerrain()
     {
         Generate();
-        foreach (var chunk in _chunks)
-        {
-            chunk.BuildMesh();
-        }
+        foreach (var chunk in ChunksList) chunk.BuildMesh();
     }
 
     public void Render(Shader shader, Camera camera)
     {
-        foreach (var chunk in _chunks)
-        {
-            chunk.Entity.Render(shader, camera);
-        }
+        foreach (var chunk in ChunksList) chunk.Entity.Render(shader, camera);
     }
 
     public IBlock GetBlockGlobal(int x, int y, int z)
     {
         // Convert to local block position
-        int lx = x % _chunkSize.X;
-        int ly = y % _chunkSize.Y;
-        int lz = z % _chunkSize.Z;
+        var lx = x % ChunkSize.X;
+        var ly = y % ChunkSize.Y;
+        var lz = z % ChunkSize.Z;
 
         return GetChunkFromGlobal(x, y, z).GetBlockLocal(lx, ly, lz);
     }
@@ -102,9 +90,9 @@ abstract class BaseTerrain
     public void SetBlockGlobal(int x, int y, int z, IBlock block)
     {
         // Convert to local block position
-        int lx = x % _chunkSize.X;
-        int ly = y % _chunkSize.Y;
-        int lz = z % _chunkSize.Z;
+        var lx = x % ChunkSize.X;
+        var ly = y % ChunkSize.Y;
+        var lz = z % ChunkSize.Z;
 
         GetChunkFromGlobal(x, y, z).SetBlockLocal(lx, ly, lz, block);
     }
@@ -112,28 +100,27 @@ abstract class BaseTerrain
     public Chunk GetChunkFromGlobal(int x, int y, int z)
     {
         // Get the chunk from global block position
-        int cx = x / _chunkSize.X;
-        int cy = y / _chunkSize.Y;
-        int cz = z / _chunkSize.Z;
+        var cx = x / ChunkSize.X;
+        var cy = y / ChunkSize.Y;
+        var cz = z / ChunkSize.Z;
 
         if (IsChunkOutOfBounds(cx, cy, cz))
-            throw new Exception(string.Format("[Terrain::GetChunkFromGlobal]: Chunk ({0},{1},{2}) is out of bounds", cx, cy, cz));
+            throw new Exception(string.Format("[Terrain::GetChunkFromGlobal]: Chunk ({0},{1},{2}) is out of bounds", cx,
+                cy, cz));
 
-        return _chunks[Maths.IndexFrom3D(cx, cy, cz, _terrainSize.Y, _terrainSize.Z)];
+        return ChunksList[Maths.IndexFrom3D(cx, cy, cz, NumberOfChunks.Y, NumberOfChunks.Z)];
     }
 
     public Chunk GetChunkFromLocal(int x, int y, int z)
     {
         if (IsChunkOutOfBounds(x, y, z))
-            throw new Exception(string.Format("[Terrain::GetChunkFromLocal]: Chunk ({0},{1},{2}) is out of bounds", x, y, z));
+            throw new Exception($"[Terrain::GetChunkFromLocal]: Chunk ({x},{y},{z}) is out of bounds");
 
-        return _chunks[Maths.IndexFrom3D(x, y, z, _terrainSize.Y, _terrainSize.Z)];
+        return ChunksList[Maths.IndexFrom3D(x, y, z, NumberOfChunks.Y, NumberOfChunks.Z)];
     }
 
     private bool IsChunkOutOfBounds(int x, int y, int z)
     {
-        if (x < 0 || x >= _terrainSize.X || y < 0 || y >= _terrainSize.Y || z < 0 || z >= _terrainSize.Z)
-            return true;
-        else return false;
+        return x < 0 || x >= NumberOfChunks.X || y < 0 || y >= NumberOfChunks.Y || z < 0 || z >= NumberOfChunks.Z;
     }
 }

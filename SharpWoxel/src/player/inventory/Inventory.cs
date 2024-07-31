@@ -1,20 +1,17 @@
-﻿using SharpWoxel.World.Blocks;
+﻿using SharpWoxel.world.blocks;
 
-namespace SharpWoxel.Player.Inventory;
+namespace SharpWoxel.player.inventory;
 
-class PlayerInventory
+internal class PlayerInventory
 {
-    private InventoryItem[] _items;
     private int _currentlySelected;
+    private readonly InventoryItem[] _items;
 
     public PlayerInventory(int inventorySize)
     {
         _items = new InventoryItem[inventorySize];
 
-        for (int i = 0; i < _items.Length; i++)
-        {
-            _items[i] = new InventoryItem(null);
-        }
+        for (var i = 0; i < _items.Length; i++) _items[i] = new InventoryItem(null);
         _currentlySelected = 0;
         _items[_currentlySelected].Selected = true;
     }
@@ -29,14 +26,14 @@ class PlayerInventory
     public InventoryItem GetInventoryItem(int index)
     {
         if (index >= _items.Count())
-            throw new ArgumentException(string.Format("Index {0} out of bound in array", index));
+            throw new ArgumentException($"Index {index} out of bound in array");
         return _items[index];
     }
 
     public void ChangeInventoryItem(int index, IBlock item)
     {
-        if (index >= _items.Count())
-            throw new ArgumentException(string.Format("Index {0} out of bound in array", index));
+        if (index >= _items.Length)
+            throw new ArgumentException($"Index {index} out of bound in array");
         _items[index].Item = item;
     }
 

@@ -1,7 +1,6 @@
-﻿
-namespace SharpWoxel.World;
+﻿namespace SharpWoxel.world;
 
-interface IWorldModelListener
+internal interface IWorldModelListener
 {
     public void Update(WorldModel worldModel);
 }

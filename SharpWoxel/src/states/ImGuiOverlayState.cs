@@ -1,15 +1,11 @@
 ﻿using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using SharpWoxel.ImGUI;
+using SharpWoxel.imgui;
 
-namespace SharpWoxel.States;
+namespace SharpWoxel.states;
 
-class ImGuiOverlayState : State
+internal class ImGuiOverlayState(Game game) : State(game)
 {
-    public ImGuiOverlayState(Game game) : base(game)
-    {
-    }
-
     public override void OnExit()
     {
     }
@@ -21,13 +17,10 @@ class ImGuiOverlayState : State
 
     public override void OnUpdateFrame(double deltaTime)
     {
-        ImGuiSingleton.GetInstance().Update(_gameRef, deltaTime);
+        ImGuiSingleton.GetInstance().Update(GameRef, deltaTime);
 
-        var input = _gameRef.KeyboardState;
-        if (input.IsKeyPressed(Keys.O))
-        {
-            StateManager.GetInstance().Pop();
-        }
+        var input = GameRef.KeyboardState;
+        if (input.IsKeyPressed(Keys.O)) StateManager.GetInstance().Pop();
     }
 
     public override void Pause()
@@ -41,7 +34,7 @@ class ImGuiOverlayState : State
     public override void Setup()
     {
         // Release the mouse from the window
-        _gameRef.CursorState = CursorState.Normal;
+        GameRef.CursorState = CursorState.Normal;
 
         //ImGuiSingleton.GetInstance().AddDemoWindow();
 

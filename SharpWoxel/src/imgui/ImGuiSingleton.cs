@@ -1,14 +1,14 @@
 ﻿using ImGuiNET;
-using OpenTK.Windowing.Desktop;
 using OpenTK.Mathematics;
+using OpenTK.Windowing.Desktop;
 
-namespace SharpWoxel.ImGUI;
+namespace SharpWoxel.imgui;
 
-class ImGuiSingleton
+internal class ImGuiSingleton
 {
+    private static readonly ImGuiSingleton Instance = new();
     private ImGuiController? _controller;
-    private List<Action<ImGuiController>> _renderFunctions;
-    private static readonly ImGuiSingleton _instance = new ImGuiSingleton();
+    private readonly List<Action<ImGuiController>> _renderFunctions;
 
     static ImGuiSingleton()
     {
@@ -19,7 +19,10 @@ class ImGuiSingleton
         _renderFunctions = new List<Action<ImGuiController>>();
     }
 
-    public static ImGuiSingleton GetInstance() { return _instance; }
+    public static ImGuiSingleton GetInstance()
+    {
+        return Instance;
+    }
 
     public void Load(int width, int height)
     {
@@ -28,20 +31,17 @@ class ImGuiSingleton
 
     public void Render()
     {
-        foreach (var renderFunction in _renderFunctions)
-        {
-            renderFunction(_controller!);
-        }
+        foreach (var renderFunction in _renderFunctions) renderFunction(_controller!);
 
         _controller?.Render();
-        ImGuiController.CheckGLError("End of frame");
+        ImGuiController.CheckGlError("End of frame");
     }
 
     /*
      * Code examples
      * Demo window code: https://github.com/ocornut/imgui/blob/master/imgui_demo.cpp
      * Interactive gui builder: https://pthom.github.io/imgui_manual_online/manual/imgui_manual.html
-    */
+     */
     public void AddRenderFunction(Action<ImGuiController> renderFunction)
     {
         _renderFunctions.Add(renderFunction);
@@ -49,7 +49,7 @@ class ImGuiSingleton
 
     public void AddDemoWindow()
     {
-        AddRenderFunction((controller) => ImGui.ShowDemoWindow());
+        AddRenderFunction(controller => ImGui.ShowDemoWindow());
     }
 
     public void ClearRenderFunctions()
@@ -69,7 +69,7 @@ class ImGuiSingleton
 
     public void OnTextInput(char c)
     {
-        _controller?.PressChar((char)c);
+        _controller?.PressChar(c);
     }
 
     public void OnMouseScroll(Vector2 offset)

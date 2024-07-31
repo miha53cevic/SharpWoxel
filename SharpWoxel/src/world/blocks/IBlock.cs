@@ -1,11 +1,11 @@
 ﻿using OpenTK.Mathematics;
-using SharpWoxel.Util;
+using SharpWoxel.util;
 
-namespace SharpWoxel.World.Blocks;
+namespace SharpWoxel.world.blocks;
 
-interface IBlock
+internal interface IBlock
 {
-    public string GetID();
+    public string GetId();
     public bool IsAir();
     public bool IsTransparent();
     public Vector2i GetFaceTextureAtlasCoordinates(Cube.Face face);

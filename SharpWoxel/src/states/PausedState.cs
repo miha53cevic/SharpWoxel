@@ -2,22 +2,16 @@
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using SharpWoxel.GLO;
-using SharpWoxel.Gui;
-using SharpWoxel.Util;
+using SharpWoxel.GLObjects;
+using SharpWoxel.gui;
+using SharpWoxel.util;
 
-namespace SharpWoxel.States;
+namespace SharpWoxel.states;
 
-class PausedState : State
+internal class PausedState(Game game) : State(game)
 {
-    private Texture _buttonTexture;
-    private Rect _uiPause = GUI.CreateRect();
-
-    public PausedState(Game game)
-        : base(game)
-    {
-        _buttonTexture = Texture.LoadFromFile("../../../res/paused_font_goudystout.png");
-    }
+    private readonly Texture _buttonTexture = Texture.LoadFromFile("../../../res/paused_font_goudystout.png");
+    private readonly Rect _uiPause = Gui.CreateRect();
 
     public override void OnExit()
     {
@@ -26,9 +20,9 @@ class PausedState : State
     public override void Setup()
     {
         // Release the mouse from the window
-        _gameRef.CursorState = CursorState.Normal;
+        GameRef.CursorState = CursorState.Normal;
 
-        _uiPause.Position = new Vector2i(_gameRef.RenderResolution.X / 2, _gameRef.RenderResolution.Y / 2);
+        _uiPause.Position = new Vector2i(GameRef.RenderResolution.X / 2, GameRef.RenderResolution.Y / 2);
         _uiPause.Size = new Vector2i(600, 200);
         _uiPause.CenterOnPosition();
     }
@@ -41,11 +35,10 @@ class PausedState : State
 
     public override void OnUpdateFrame(double deltaTime)
     {
-        var input = _gameRef.KeyboardState;
+        var input = GameRef.KeyboardState;
         if (input.IsKeyPressed(Keys.Escape))
         {
             StateManager.GetInstance().Pop();
-            return;
         }
     }
 

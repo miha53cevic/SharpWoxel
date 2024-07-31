@@ -1,34 +1,21 @@
 ﻿using OpenTK.Mathematics;
-using SharpWoxel.World.Blocks;
+using SharpWoxel.world.blocks;
 
-namespace SharpWoxel.World.Terrain;
+namespace SharpWoxel.world.terrain;
 
-class FlatTerrain : BaseTerrain
+internal class FlatTerrain(Vector3i numberOfChunks, Vector3i chunkSize) : BaseTerrain(numberOfChunks, chunkSize)
 {
-    public FlatTerrain(Vector3i size, Vector3i chunkSize)
-        : base(size, chunkSize)
-    {
-    }
-
     protected override void Generate()
     {
-        int maxAmp = _chunkSize.Y / 2;
+        var maxAmp = chunkSize.Y / 2;
 
-        foreach (var chunk in _chunks)
+        foreach (var chunk in ChunksList)
         {
-            for (int z = 0; z < _chunkSize.Z; z++)
-            {
-                for (int y = 0; y < _chunkSize.Y; y++)
-                {
-                    for (int x = 0; x < _chunkSize.X; x++)
-                    {
-                        if (y <= 1)
-                        {
-                            chunk.SetBlockLocal(x, y, z, new GrassBlock());
-                        }
-                    }
-                }
-            }
+            for (var z = 0; z < chunkSize.Z; z++)
+            for (var y = 0; y < chunkSize.Y; y++)
+            for (var x = 0; x < chunkSize.X; x++)
+                if (y <= 1)
+                    chunk.SetBlockLocal(x, y, z, new GrassBlock());
             chunk.SetBlockLocal(1, 2, 1, new DirtBlock());
             chunk.SetBlockLocal(1, 1, 1, new AirBlock());
             chunk.SetBlockLocal(1, 1, 0, new AirBlock());

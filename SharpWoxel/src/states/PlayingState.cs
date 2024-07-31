@@ -1,34 +1,33 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using SharpWoxel.Entities;
-using SharpWoxel.Player;
-using SharpWoxel.Player.Inventory;
-using SharpWoxel.Util;
-using SharpWoxel.World;
-using SharpWoxel.World.Terrain;
+using SharpWoxel.entities;
+using SharpWoxel.player;
+using SharpWoxel.player.inventory;
+using SharpWoxel.util;
+using SharpWoxel.world;
+using SharpWoxel.world.terrain;
 
-namespace SharpWoxel.States;
+namespace SharpWoxel.states;
 
-class PlayingState : State
+internal class PlayingState : State
 {
+    private readonly InventoryRenderer _inventoryRenderer;
     private bool _paused;
-    private Camera _camera;
-    private PlayerController _playerController;
-    private WorldModel _world;
-    private InventoryRenderer _inventoryRenderer;
-    private VoxelOutline _voxelOutline;
+    private readonly PlayerController _playerController;
+    private readonly VoxelOutline _voxelOutline;
+    private readonly WorldModel _world;
 
     public PlayingState(Game game)
         : base(game)
     {
         _paused = false;
-        _camera = new Camera(new Vector3(0, 0, 0), (float)game.RenderResolution.X / (float)game.RenderResolution.Y);
+        var camera = new Camera(new Vector3(0, 0, 0), game.RenderResolution.X / (float)game.RenderResolution.Y);
 
         var playerInventory = new PlayerInventory(8);
-        _playerController = new PlayerController(_camera, playerInventory);
+        _playerController = new PlayerController(camera, playerInventory);
         _inventoryRenderer = new InventoryRenderer(playerInventory);
-        _inventoryRenderer.SetRenderPosition((_gameRef.RenderResolution.X / 2, 64));
+        _inventoryRenderer.SetRenderPosition((GameRef.RenderResolution.X / 2, 64));
         _inventoryRenderer.CenterOnPosition();
 
         _voxelOutline = new VoxelOutline();
@@ -36,6 +35,7 @@ class PlayingState : State
         BaseTerrain testTerrain = new TestTerrain(new Vector3i(3, 3, 3), new Vector3i(32, 32, 32));
         _world = new WorldModel(testTerrain);
     }
+
     public override void Setup()
     {
         _playerController.Camera.Position = (1.5f * 32.0f, 1.5f * 32.0f, 1.5f * 32.0f);
@@ -45,15 +45,10 @@ class PlayingState : State
     private void HandleWindowFocus()
     {
         // Lock cursor (and hide it) to the screen if the window is in focus
-        if (_gameRef.IsFocused)
-        {
-            _gameRef.CursorState = CursorState.Grabbed;
-        }
+        if (GameRef.IsFocused)
+            GameRef.CursorState = CursorState.Grabbed;
         else
-        {
-            _gameRef.CursorState = CursorState.Normal;
-            return; // exit function if window is not in focus
-        }
+            GameRef.CursorState = CursorState.Normal;
     }
 
     public override void OnUpdateFrame(double deltaTime)
@@ -64,22 +59,22 @@ class PlayingState : State
         HandleWindowFocus();
 
         // Pause the game
-        var input = _gameRef.KeyboardState;
+        var input = GameRef.KeyboardState;
         if (input.IsKeyPressed(Keys.Escape))
         {
-            StateManager.GetInstance().Add(new PausedState(_gameRef));
+            StateManager.GetInstance().Add(new PausedState(GameRef));
             return;
         }
 
         // Update
-        _playerController.Update(deltaTime, _gameRef.KeyboardState, _gameRef.MouseState);
+        _playerController.Update(deltaTime, GameRef.KeyboardState, GameRef.MouseState);
 
         // Update voxelOutline Position
         var blockPosition = _world.CastRayFirstBlockIntersection(_playerController.Camera);
         if (blockPosition.HasValue)
         {
             var blockPos = blockPosition.Value;
-            _voxelOutline.Position = ((float)blockPos.X, (float)blockPos.Y, (float)blockPos.Z);
+            _voxelOutline.Position = (blockPos.X, blockPos.Y, blockPos.Z);
         }
     }
 
