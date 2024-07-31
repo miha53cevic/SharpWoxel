@@ -15,8 +15,13 @@ namespace SharpWoxel.imgui;
 public class ImGuiController : IDisposable
 {
     private static bool _khrDebugAvailable;
+    private readonly bool _compatibilityProfile;
+
+    private readonly int _glVersion;
 
     private readonly List<char> _pressedChars = [];
+
+    private readonly Vector2 _scaleFactor = Vector2.One;
 
     //private Texture _fontTexture;
 
@@ -24,8 +29,6 @@ public class ImGuiController : IDisposable
     private bool _frameBegun;
     private int _indexBuffer;
     private int _indexBufferSize;
-
-    private readonly Vector2 _scaleFactor = Vector2.One;
 
     private int _shader;
     private int _shaderFontTextureLocation;
@@ -37,9 +40,6 @@ public class ImGuiController : IDisposable
     private int _windowHeight;
 
     private int _windowWidth;
-    private readonly bool _compatibilityProfile;
-
-    private readonly int _glVersion;
 
     /// <summary>
     ///     Constructs a new ImGuiController.
@@ -446,10 +446,7 @@ void main()
             for (var cmdI = 0; cmdI < cmdList.CmdBuffer.Size; cmdI++)
             {
                 var pcmd = cmdList.CmdBuffer[cmdI];
-                if (pcmd.UserCallback != IntPtr.Zero)
-                {
-                    throw new NotImplementedException();
-                }
+                if (pcmd.UserCallback != IntPtr.Zero) throw new NotImplementedException();
 
                 GL.ActiveTexture(TextureUnit.Texture0);
                 GL.BindTexture(TextureTarget.Texture2D, (int)pcmd.TextureId);

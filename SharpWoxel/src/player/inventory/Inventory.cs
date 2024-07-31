@@ -4,8 +4,8 @@ namespace SharpWoxel.player.inventory;
 
 internal class PlayerInventory
 {
-    private int _currentlySelected;
     private readonly InventoryItem[] _items;
+    private int _currentlySelected;
 
     public PlayerInventory(int inventorySize)
     {

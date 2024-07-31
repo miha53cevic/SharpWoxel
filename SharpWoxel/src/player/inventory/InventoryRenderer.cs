@@ -2,7 +2,7 @@
 using SharpWoxel.entities;
 using SharpWoxel.GLObjects;
 using SharpWoxel.gui;
-using SharpWoxel.util;
+using SharpWoxel.mesh;
 
 namespace SharpWoxel.player.inventory;
 
@@ -38,7 +38,7 @@ internal class InventoryRenderer(PlayerInventory inventory)
             // Set block representation in inventoryItem
             if (item.Item != null)
             {
-                var coords = item.Item.GetFaceTextureAtlasCoordinates(Cube.Face.Front);
+                var coords = item.Item.GetFaceTextureAtlasCoordinates(CubeFaceMesh.Face.Front);
                 _uiItem.SetTextureCoordinates(ChunkEntity.TexAtlas.GetTextureCoords(coords.X, coords.Y));
             }
 

@@ -9,7 +9,7 @@ internal class WorldModel(BaseTerrain terrain)
 {
     private readonly List<IWorldModelListener> _listeners = [];
 
-    private BaseTerrain Terrain { get; set; } = terrain;
+    private BaseTerrain Terrain { get; } = terrain;
 
     // Observer code
     public void Subscribe(IWorldModelListener listener)

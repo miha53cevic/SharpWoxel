@@ -6,7 +6,7 @@ internal class Ebo
 {
     private readonly int _ebo = GL.GenBuffer();
 
-    public int Size { get; private set; } = 0;
+    public int Size { get; private set; }
 
     public void SetElementBufferData(uint[] data, BufferUsageHint usage)
     {

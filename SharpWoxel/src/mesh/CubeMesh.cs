@@ -1,18 +1,11 @@
-﻿namespace SharpWoxel.util;
+﻿using OpenTK.Graphics.OpenGL4;
+using SharpWoxel.GLObjects;
 
-internal static class Cube
+namespace SharpWoxel.mesh;
+
+internal class CubeMesh : IMesh
 {
-    public enum Face
-    {
-        Top,
-        Bottom,
-        Left,
-        Right,
-        Back,
-        Front
-    }
-
-    public static readonly float[] Verticies =
+    private static readonly float[] Verticies =
     [
         // Back face
         1f, 1f, 0f,
@@ -51,7 +44,7 @@ internal static class Cube
         1f, 0f, 1f
     ];
 
-    public static readonly float[] TextureCoordinates =
+    private static readonly float[] TextureCoordinates =
     [
         1f, 1f,
         1f, 0f,
@@ -84,7 +77,7 @@ internal static class Cube
         0f, 1f
     ];
 
-    public static readonly uint[] Indicies =
+    private static readonly uint[] Indicies =
     [
         0, 1, 3,
         3, 1, 2,
@@ -100,34 +93,30 @@ internal static class Cube
         23, 21, 22
     ];
 
-    public static class CubeFace
+    private readonly Ebo _ebo;
+    private readonly Vao _vao;
+
+    public CubeMesh()
     {
-        public static uint[] Indicies =
-        [
-            0, 1, 3,
-            3, 1, 2
-        ];
+        _vao = new Vao();
+        var vertVbo = new Vbo();
+        var texVbo = new Vbo();
+        _ebo = new Ebo();
 
-        public static float[] TextureCoordinates =
-        [
-            0.0f, 0.0f,
-            0.0f, 1.0f,
-            1.0f, 1.0f,
-            1.0f, 0.0f
-        ];
+        _vao.Bind();
+        vertVbo.SetBufferData(Verticies, BufferUsageHint.StaticDraw);
+        texVbo.SetBufferData(TextureCoordinates, BufferUsageHint.StaticDraw);
+        _ebo.SetElementBufferData(Indicies, BufferUsageHint.StaticDraw);
+        _vao.Unbind();
 
-        public static float[] GetCubeFace(Face face)
-        {
-            return face switch
-            {
-                Face.Top => [0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0],
-                Face.Bottom => [0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1],
-                Face.Left => [0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1],
-                Face.Right => [1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0],
-                Face.Front => [0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1],
-                Face.Back => [1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
-                _ => throw new Exception("Invalid Face for CubeFace given")
-            };
-        }
+        _vao.DefineVertexAttribPointer(vertVbo, 0, 3, 3 * sizeof(float), 0);
+        _vao.DefineVertexAttribPointer(texVbo, 1, 2, 2 * sizeof(float), 0);
+    }
+
+    public void Render()
+    {
+        _vao.Bind();
+        GL.DrawElements(BeginMode.Lines, _ebo.Size, DrawElementsType.UnsignedInt, 0);
+        _vao.Unbind();
     }
 }

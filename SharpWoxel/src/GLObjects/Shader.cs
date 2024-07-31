@@ -7,8 +7,8 @@ internal sealed class Shader : IDisposable
 {
     private readonly string _fragmentPath;
     private readonly string _vertexPath;
-    private int _handle = -1;
     private bool _disposedValue;
+    private int _handle = -1;
 
     public Shader(string vertexPath, string fragmentPath)
     {

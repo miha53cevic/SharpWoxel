@@ -4,8 +4,8 @@ namespace SharpWoxel.util;
 
 internal class Ray(Vector3 start, Vector3 direction)
 {
-    private Vector3 _end = start;
     private readonly Vector3 _start = start;
+    private Vector3 _end = start;
 
     // start - the start position of the ray
     // direction - the direction in which the ray is cast (must be unit vector)

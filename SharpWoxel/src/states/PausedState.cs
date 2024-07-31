@@ -36,10 +36,7 @@ internal class PausedState(Game game) : State(game)
     public override void OnUpdateFrame(double deltaTime)
     {
         var input = GameRef.KeyboardState;
-        if (input.IsKeyPressed(Keys.Escape))
-        {
-            StateManager.GetInstance().Pop();
-        }
+        if (input.IsKeyPressed(Keys.Escape)) StateManager.GetInstance().Pop();
     }
 
     public override void Pause()

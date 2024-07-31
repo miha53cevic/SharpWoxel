@@ -1,15 +1,15 @@
 ﻿using OpenTK.Mathematics;
-using SharpWoxel.util;
+using SharpWoxel.mesh;
 
 namespace SharpWoxel.world.blocks;
 
 internal class WoodBlock : IBlock
 {
-    public Vector2i GetFaceTextureAtlasCoordinates(Cube.Face face)
+    public Vector2i GetFaceTextureAtlasCoordinates(CubeFaceMesh.Face face)
     {
         var coords = face switch
         {
-            Cube.Face.Top or Cube.Face.Bottom => (4, 0),
+            CubeFaceMesh.Face.Top or CubeFaceMesh.Face.Bottom => (4, 0),
             _ => (5, 0)
         };
 

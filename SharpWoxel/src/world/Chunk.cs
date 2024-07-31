@@ -1,27 +1,27 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using SharpWoxel.entities;
-using SharpWoxel.util;
+using SharpWoxel.mesh;
 using SharpWoxel.world.blocks;
 
 namespace SharpWoxel.world;
 
 internal enum NeighbourDirection
 {
-    North,
-    South,
-    East,
-    West,
-    Above,
-    Below
+    West = 0,
+    East = 1,
+    South = 2,
+    North = 3,
+    Above = 4,
+    Below = 5,
 }
 
 internal class Chunk
 {
     private const int NeighbourCount = 6;
     private readonly IBlock[,,] _blocks;
-    private readonly Chunk[] _neighbours;
     private readonly Vector3i _chunkSize;
+    private readonly Chunk[] _neighbours;
 
     public Chunk(Vector3 position, Vector3i chunkSize)
     {
@@ -76,14 +76,26 @@ internal class Chunk
         var tempIndicies = new List<uint>();
         uint indicies = 0;
 
-        /*int i = 0;
-        foreach (var n in _neighbours)
-        {
-            Console.WriteLine(string.Format("{0}: {1}", (NeighbourDirection)i, n));
-            i++;
-        }
-        Console.WriteLine(Entity.Position);
-        Console.WriteLine(this);*/
+        int[][] blockNeighbourLocations =
+        [
+            [-1, 0, 0], // left
+            [1, 0, 0], // right
+            [0, 0, 1], // front
+            [0, 0, -1], // back
+            [0, 1, 0], // top
+            [0, -1, 0], // bottom
+        ];
+
+        // -1 za koordinate koje se ne diraju (x, y, 0) => (-1, -1, 0)
+        int[][] neighboursBlockLocations =
+        [
+            [_chunkSize.X - 1, -1, -1], // left
+            [0, -1, -1], // right
+            [-1, -1, 0], // front
+            [-1, -1, _chunkSize.Z - 1], // back
+            [-1, 0, -1], // top
+            [-1, _chunkSize.Y - 1, -1], // bottom
+        ];
 
         for (var x = 0; x < _chunkSize.X; x++)
         for (var y = 0; y < _chunkSize.Y; y++)
@@ -94,66 +106,61 @@ internal class Chunk
                 continue;
 
             // Check for possible block neighbours
-            bool left = false, right = false, front = false, back = false, top = false, bottom = false;
-            if (x != 0) left = true;
-            if (y != 0) bottom = true;
-            if (z != 0) back = true;
-            if (x != _chunkSize.X - 1) right = true;
-            if (y != _chunkSize.Y - 1) top = true;
-            if (z != _chunkSize.Z - 1) front = true;
+            var blockNeighbourExists = new bool[6];
+            // bool left = false, right = false, front = false, back = false, top = false, bottom = false;
+            if (x != 0) blockNeighbourExists[0] = true;
+            if (y != 0) blockNeighbourExists[5] = true;
+            if (z != 0) blockNeighbourExists[3] = true;
+            if (x != _chunkSize.X - 1) blockNeighbourExists[1] = true;
+            if (y != _chunkSize.Y - 1) blockNeighbourExists[4] = true;
+            if (z != _chunkSize.Z - 1) blockNeighbourExists[2] = true;
 
             // Create cube face if the neighbouring block is air
-            if (left)
-                if (_blocks[x - 1, y, z].IsAir())
-                    CreateCubeFace(Cube.Face.Left, x, y, z);
-            if (right)
-                if (_blocks[x + 1, y, z].IsAir())
-                    CreateCubeFace(Cube.Face.Right, x, y, z);
-            if (bottom)
-                if (_blocks[x, y - 1, z].IsAir())
-                    CreateCubeFace(Cube.Face.Bottom, x, y, z);
-            if (top)
-                if (_blocks[x, y + 1, z].IsAir())
-                    CreateCubeFace(Cube.Face.Top, x, y, z);
-            if (back)
-                if (_blocks[x, y, z - 1].IsAir())
-                    CreateCubeFace(Cube.Face.Back, x, y, z);
-            if (front)
-                if (_blocks[x, y, z + 1].IsAir())
-                    CreateCubeFace(Cube.Face.Front, x, y, z);
+            for (var i = 0; i < blockNeighbourExists.Length; i++)
+            {
+                if (!blockNeighbourExists[i]) continue; // nema susjedne kocke s te strane
+
+                var blockNeighbourLocation = blockNeighbourLocations[i];
+                var blockNeighbourX = blockNeighbourLocation[0] + x;
+                var blockNeighbourY = blockNeighbourLocation[1] + y;
+                var blockNeighbourZ = blockNeighbourLocation[2] + z;
+                if (_blocks[blockNeighbourX, blockNeighbourY, blockNeighbourZ]
+                    .IsAir())
+                    CreateCubeFace((CubeFaceMesh.Face)i, x, y, z);
+            }
 
             // Check 1 block width with neighbouring chunks, for the outer chunk blocks
-            if (!left && _neighbours.GetValue((int)NeighbourDirection.West) != null)
-                if (_neighbours[(int)NeighbourDirection.West].GetBlockLocal(_chunkSize.X - 1, y, z).IsAir())
-                    CreateCubeFace(Cube.Face.Left, x, y, z);
-            if (!right && _neighbours.GetValue((int)NeighbourDirection.East) != null)
-                if (_neighbours[(int)NeighbourDirection.East].GetBlockLocal(0, y, z).IsAir())
-                    CreateCubeFace(Cube.Face.Right, x, y, z);
-            if (!bottom && _neighbours.GetValue((int)NeighbourDirection.Below) != null)
-                if (_neighbours[(int)NeighbourDirection.Below].GetBlockLocal(x, _chunkSize.Y - 1, z).IsAir())
-                    CreateCubeFace(Cube.Face.Bottom, x, y, z);
-            if (!top && _neighbours.GetValue((int)NeighbourDirection.Above) != null)
-                if (_neighbours[(int)NeighbourDirection.Above].GetBlockLocal(x, 0, z).IsAir())
-                    CreateCubeFace(Cube.Face.Top, x, y, z);
-            if (!back && _neighbours.GetValue((int)NeighbourDirection.North) != null)
-                if (_neighbours[(int)NeighbourDirection.North].GetBlockLocal(x, y, _chunkSize.Z - 1).IsAir())
-                    CreateCubeFace(Cube.Face.Back, x, y, z);
-            if (!front && _neighbours.GetValue((int)NeighbourDirection.South) != null)
-                if (_neighbours[(int)NeighbourDirection.South].GetBlockLocal(x, y, 0).IsAir())
-                    CreateCubeFace(Cube.Face.Front, x, y, z);
+            for (var i = 0; i < blockNeighbourExists.Length; i++)
+            {
+                if (blockNeighbourExists[i])
+                    continue; // ako nema susjeda je rubna kocka u svojem chunk-u, inace preskoci
+                if (_neighbours.GetValue(i) == null) continue; // ako smo rubna kocka i nema chunk susjeda onda preskoci
+
+                var neighboursBlockLocation = neighboursBlockLocations[i];
+                var neighbourBlockX = neighboursBlockLocation[0] == -1 ? x : neighboursBlockLocation[0];
+                var neighbourBlockY = neighboursBlockLocation[1] == -1 ? y : neighboursBlockLocation[1];
+                var neighbourBlockZ = neighboursBlockLocation[2] == -1 ? z : neighboursBlockLocation[2];
+                if (_neighbours[i]
+                    .GetBlockLocal(neighbourBlockX, neighbourBlockY, neighbourBlockZ)
+                    .IsAir())
+                    CreateCubeFace((CubeFaceMesh.Face)i, x, y, z);
+            }
         }
 
-        Entity.SetVerticies(tempVerticies.ToArray(), BufferUsageHint.DynamicDraw);
-        Entity.SetIndicies(tempIndicies.ToArray(), BufferUsageHint.DynamicDraw);
-        Entity.SetTextureCoords(tempTextureCoords.ToArray(), BufferUsageHint.DynamicDraw);
+        Entity.Mesh.RebuildMesh(
+            tempVerticies.ToArray(),
+            tempIndicies.ToArray(),
+            tempTextureCoords.ToArray(),
+            BufferUsageHint.DynamicDraw
+        );
 
         Console.WriteLine("Created {0} with: verticies({1}), indicies({2}), textureCoords({3})", this,
             tempVerticies.Count, tempIndicies.Count, tempTextureCoords.Count);
         return;
 
-        void CreateCubeFace(Cube.Face face, int x, int y, int z)
+        void CreateCubeFace(CubeFaceMesh.Face face, int x, int y, int z)
         {
-            var faceVerticies = Cube.CubeFace.GetCubeFace(face);
+            var faceVerticies = CubeFaceMesh.GetCubeFaceVerticies(face);
 
             for (var i = 0; i < faceVerticies.Length / 3; i++)
             {

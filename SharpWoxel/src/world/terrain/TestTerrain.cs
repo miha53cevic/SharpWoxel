@@ -112,7 +112,7 @@ internal class TestTerrain : BaseTerrain
     protected override void Generate()
     {
         const int seed = 1337;
-        Noise noise = new SimplexNoise(seed);
+        Noise noise = new SimplexNoise();
 
         const int minAmp = 1;
         var maxAmp = ChunkSize.Y * NumberOfChunks.Y;

@@ -9,7 +9,7 @@ internal class SimpleEntity(string texturePath) : Entity
     private readonly Ebo _ebo = new();
     private readonly Texture _texture = Texture.LoadFromFile(texturePath);
     private readonly Vao _vao = new();
-    private readonly List<Vbo> _vbos = new();
+    private readonly List<Vbo> _vbos = [];
 
     private bool _loadedEbo;
     private bool _loadedTextureCoords;

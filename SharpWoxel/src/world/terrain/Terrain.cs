@@ -8,8 +8,8 @@ namespace SharpWoxel.world.terrain;
 internal abstract class BaseTerrain
 {
     public readonly List<Chunk> ChunksList;
-    public Vector3i NumberOfChunks;
     public Vector3i ChunkSize;
+    public Vector3i NumberOfChunks;
 
     protected BaseTerrain(Vector3i numberOfChunks, Vector3i chunkSize)
     {

@@ -13,10 +13,10 @@ namespace SharpWoxel.states;
 internal class PlayingState : State
 {
     private readonly InventoryRenderer _inventoryRenderer;
-    private bool _paused;
     private readonly PlayerController _playerController;
     private readonly VoxelOutline _voxelOutline;
     private readonly WorldModel _world;
+    private bool _paused;
 
     public PlayingState(Game game)
         : base(game)

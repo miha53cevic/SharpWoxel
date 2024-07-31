@@ -7,16 +7,11 @@ namespace SharpWoxel.imgui;
 internal class ImGuiSingleton
 {
     private static readonly ImGuiSingleton Instance = new();
+    private readonly List<Action<ImGuiController>> _renderFunctions = [];
     private ImGuiController? _controller;
-    private readonly List<Action<ImGuiController>> _renderFunctions;
 
     static ImGuiSingleton()
     {
-    }
-
-    public ImGuiSingleton()
-    {
-        _renderFunctions = new List<Action<ImGuiController>>();
     }
 
     public static ImGuiSingleton GetInstance()
