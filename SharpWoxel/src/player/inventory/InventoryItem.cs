@@ -2,16 +2,9 @@
 
 namespace SharpWoxel.player.inventory;
 
-internal class InventoryItem
+internal class InventoryItem(IBlock? block)
 {
-    public InventoryItem(IBlock? block)
-    {
-        Item = block;
-        Selected = false;
-        Count = 0;
-    }
-
-    public IBlock? Item { get; set; }
-    public bool Selected { get; set; }
-    public int Count { get; set; }
+    public IBlock? Item { get; set; } = block;
+    public bool Selected { get; set; } = false;
+    public int Count { get; set; } = 0;
 }

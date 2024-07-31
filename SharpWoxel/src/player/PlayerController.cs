@@ -25,21 +25,12 @@ internal class PlayerController
 
     private void HandleInput(double deltaTime, KeyboardState keyInput, MouseState mouseInput)
     {
-        // Keyboard inputs
-        if (keyInput.IsKeyDown(Keys.W)) Camera.Position += Camera.Front * (float)deltaTime * PlayerSpeed;
+        KeyboardInput(deltaTime, keyInput);
+        MouseInput(mouseInput);
+    }
 
-        if (keyInput.IsKeyDown(Keys.S)) Camera.Position -= Camera.Front * (float)deltaTime * PlayerSpeed;
-
-        if (keyInput.IsKeyDown(Keys.A)) Camera.Position -= Camera.Right * (float)deltaTime * PlayerSpeed;
-
-        if (keyInput.IsKeyDown(Keys.D)) Camera.Position += Camera.Right * (float)deltaTime * PlayerSpeed;
-
-        if (keyInput.IsKeyDown(Keys.Space)) Camera.Position += Camera.Up * (float)deltaTime * PlayerSpeed;
-
-        if (keyInput.IsKeyDown(Keys.LeftControl)) Camera.Position -= Camera.Up * (float)deltaTime * PlayerSpeed;
-
-        PlayerSpeed = keyInput.IsKeyDown(Keys.LeftShift) ? 20.0f : 10.0f;
-
+    private void MouseInput(MouseState mouseInput)
+    {
         // Mouse inputs
         Camera.Yaw += mouseInput.Delta.X * Sensetivity;
         Camera.Pitch -= mouseInput.Delta.Y * Sensetivity;
@@ -54,6 +45,24 @@ internal class PlayerController
                 PlayerInventory.SelectPrevious();
                 break;
         }
+    }
+
+    private void KeyboardInput(double deltaTime, KeyboardState keyInput)
+    {
+        // Keyboard inputs
+        if (keyInput.IsKeyDown(Keys.W)) Camera.Position += Camera.Front * (float)deltaTime * PlayerSpeed;
+
+        if (keyInput.IsKeyDown(Keys.S)) Camera.Position -= Camera.Front * (float)deltaTime * PlayerSpeed;
+
+        if (keyInput.IsKeyDown(Keys.A)) Camera.Position -= Camera.Right * (float)deltaTime * PlayerSpeed;
+
+        if (keyInput.IsKeyDown(Keys.D)) Camera.Position += Camera.Right * (float)deltaTime * PlayerSpeed;
+
+        if (keyInput.IsKeyDown(Keys.Space)) Camera.Position += Camera.Up * (float)deltaTime * PlayerSpeed;
+
+        if (keyInput.IsKeyDown(Keys.LeftControl)) Camera.Position -= Camera.Up * (float)deltaTime * PlayerSpeed;
+
+        PlayerSpeed = keyInput.IsKeyDown(Keys.LeftShift) ? 20.0f : 10.0f;
     }
 
     public void Update(double deltaTime, KeyboardState keyInput, MouseState mouseInput)

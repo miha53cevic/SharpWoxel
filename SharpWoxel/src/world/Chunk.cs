@@ -115,35 +115,12 @@ internal class Chunk
             if (y != _chunkSize.Y - 1) blockNeighbourExists[4] = true;
             if (z != _chunkSize.Z - 1) blockNeighbourExists[2] = true;
 
-            // Create cube face if the neighbouring block is air
             for (var i = 0; i < blockNeighbourExists.Length; i++)
             {
-                if (!blockNeighbourExists[i]) continue; // nema susjedne kocke s te strane
-
-                var blockNeighbourLocation = blockNeighbourLocations[i];
-                var blockNeighbourX = blockNeighbourLocation[0] + x;
-                var blockNeighbourY = blockNeighbourLocation[1] + y;
-                var blockNeighbourZ = blockNeighbourLocation[2] + z;
-                if (_blocks[blockNeighbourX, blockNeighbourY, blockNeighbourZ]
-                    .IsAir())
-                    CreateCubeFace((CubeFaceMesh.Face)i, x, y, z);
-            }
-
-            // Check 1 block width with neighbouring chunks, for the outer chunk blocks
-            for (var i = 0; i < blockNeighbourExists.Length; i++)
-            {
-                if (blockNeighbourExists[i])
-                    continue; // ako nema susjeda je rubna kocka u svojem chunk-u, inace preskoci
-                if (_neighbours.GetValue(i) == null) continue; // ako smo rubna kocka i nema chunk susjeda onda preskoci
-
-                var neighboursBlockLocation = neighboursBlockLocations[i];
-                var neighbourBlockX = neighboursBlockLocation[0] == -1 ? x : neighboursBlockLocation[0];
-                var neighbourBlockY = neighboursBlockLocation[1] == -1 ? y : neighboursBlockLocation[1];
-                var neighbourBlockZ = neighboursBlockLocation[2] == -1 ? z : neighboursBlockLocation[2];
-                if (_neighbours[i]
-                    .GetBlockLocal(neighbourBlockX, neighbourBlockY, neighbourBlockZ)
-                    .IsAir())
-                    CreateCubeFace((CubeFaceMesh.Face)i, x, y, z);
+                // Check 1 block width with neighbouring chunks, for the outer chunk blocks
+                if (!blockNeighbourExists[i]) CheckOuterBlockWithChunkNeighbour(i, x, y, z);
+                // Create cube face if the neighbouring block is air
+                else CheckBlockWithLocalNeighbour(i, x, y, z);
             }
         }
 
@@ -180,6 +157,31 @@ internal class Chunk
             tempIndicies.Add(indicies + 1);
             tempIndicies.Add(indicies + 2);
             indicies += 4;
+        }
+
+        void CheckOuterBlockWithChunkNeighbour(int i, int x, int y, int z)
+        {
+            if (_neighbours.GetValue(i) == null) return;
+
+            var neighboursBlockLocation = neighboursBlockLocations[i];
+            var neighbourBlockX = neighboursBlockLocation[0] == -1 ? x : neighboursBlockLocation[0];
+            var neighbourBlockY = neighboursBlockLocation[1] == -1 ? y : neighboursBlockLocation[1];
+            var neighbourBlockZ = neighboursBlockLocation[2] == -1 ? z : neighboursBlockLocation[2];
+            if (_neighbours[i]
+                .GetBlockLocal(neighbourBlockX, neighbourBlockY, neighbourBlockZ)
+                .IsAir())
+                CreateCubeFace((CubeFaceMesh.Face)i, x, y, z);
+        }
+
+        void CheckBlockWithLocalNeighbour(int i, int x, int y, int z)
+        {
+            var blockNeighbourLocation = blockNeighbourLocations[i];
+            var blockNeighbourX = blockNeighbourLocation[0] + x;
+            var blockNeighbourY = blockNeighbourLocation[1] + y;
+            var blockNeighbourZ = blockNeighbourLocation[2] + z;
+            if (_blocks[blockNeighbourX, blockNeighbourY, blockNeighbourZ]
+                .IsAir())
+                CreateCubeFace((CubeFaceMesh.Face)i, x, y, z);
         }
     }
 

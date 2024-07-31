@@ -32,14 +32,14 @@ internal class InventoryRenderer(PlayerInventory inventory)
         {
             // Set inventory frame
             if (item.Selected)
-                _uiBox.SetTextureCoordinates(ChunkEntity.TexAtlas.GetTextureCoords(5, 7));
-            else _uiBox.SetTextureCoordinates(ChunkEntity.TexAtlas.GetTextureCoords(6, 7));
+                _uiBox.Mesh.SetTextureCoordinates(ChunkEntity.TexAtlas.GetTextureCoords(5, 7));
+            else _uiBox.Mesh.SetTextureCoordinates(ChunkEntity.TexAtlas.GetTextureCoords(6, 7));
 
             // Set block representation in inventoryItem
             if (item.Item != null)
             {
                 var coords = item.Item.GetFaceTextureAtlasCoordinates(CubeFaceMesh.Face.Front);
-                _uiItem.SetTextureCoordinates(ChunkEntity.TexAtlas.GetTextureCoords(coords.X, coords.Y));
+                _uiItem.Mesh.SetTextureCoordinates(ChunkEntity.TexAtlas.GetTextureCoords(coords.X, coords.Y));
             }
 
             // Set positions and sizes

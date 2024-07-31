@@ -25,7 +25,7 @@ internal class PlayerInventory
 
     public InventoryItem GetInventoryItem(int index)
     {
-        if (index >= _items.Count())
+        if (index >= _items.Length)
             throw new ArgumentException($"Index {index} out of bound in array");
         return _items[index];
     }
