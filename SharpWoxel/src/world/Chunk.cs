@@ -199,7 +199,7 @@ internal class Chunk
     private void RebuildNeighbours()
     {
         foreach (var neighbour in _neighbours)
-            neighbour.BuildMesh(); // vazno da NIJE rebuild onda je rekurzivno zvanje
+            neighbour?.BuildMesh(); // vazno da NIJE rebuild onda je rekurzivno zvanje
     }
 
     public override string ToString()

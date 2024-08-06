@@ -13,7 +13,7 @@ internal class VoxelOutline : Entity
         Scale *= (1.01f, 1.01f, 1.01f);
     }
 
-    public override void Render(Shader shader, Camera camera)
+    protected override void SetupRender(Shader shader, Camera camera)
     {
         shader.Use();
         var model = Maths.CreateTransformationMatrix(

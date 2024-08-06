@@ -1,6 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using SharpWoxel.GLObjects;
 using SharpWoxel.util;
+using SharpWoxel.world.blocks;
 using SharpWoxel.world.terrain;
 
 namespace SharpWoxel.world;
@@ -9,7 +10,7 @@ internal class WorldModel(BaseTerrain terrain)
 {
     private readonly List<IWorldModelListener> _listeners = [];
 
-    private BaseTerrain Terrain { get; } = terrain;
+    public BaseTerrain Terrain { get; } = terrain;
 
     // Observer code
     public void Subscribe(IWorldModelListener listener)
@@ -45,7 +46,7 @@ internal class WorldModel(BaseTerrain terrain)
     {
     }
 
-    public Vector3i? CastRayFirstBlockIntersection(Camera camera, float rayMaxLength = 6f, float rayStep = 0.01f)
+    public Vector3i? CastRayToFirstBlock(Camera camera, float rayMaxLength = 6f, float rayStep = 0.01f)
     {
         for (var ray = new Ray(camera.Position, camera.Front); ray.GetLength() < rayMaxLength; ray.Step(rayStep))
         {
@@ -64,5 +65,17 @@ internal class WorldModel(BaseTerrain terrain)
         }
 
         return null;
+    }
+
+    public void PlaceBlock(Vector3i position, IBlock block)
+    {
+        var chunk = Terrain.GetChunkFromGlobal(position.X, position.Y, position.Z);
+        Terrain.SetBlockGlobal(position.X, position.Y, position.Z, block);
+        chunk.RebuildMesh();
+    }
+
+    public void BreakBlock(Vector3i position)
+    {
+        PlaceBlock(position, new AirBlock());
     }
 }

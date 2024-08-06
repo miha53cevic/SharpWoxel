@@ -36,6 +36,8 @@ internal class Game(int width, int height, string title) : GameWindow(GameWindow
     {
         base.OnLoad();
 
+        this.VSync = VSyncMode.On;
+
         GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
         GL.Enable(EnableCap.DepthTest);

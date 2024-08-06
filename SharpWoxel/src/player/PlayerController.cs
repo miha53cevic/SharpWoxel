@@ -45,6 +45,10 @@ internal class PlayerController
                 PlayerInventory.SelectPrevious();
                 break;
         }
+
+        if (mouseInput.IsButtonPressed(MouseButton.Button1))
+        {
+        }
     }
 
     private void KeyboardInput(double deltaTime, KeyboardState keyInput)

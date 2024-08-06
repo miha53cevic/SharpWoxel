@@ -57,4 +57,9 @@ internal class PlayerInventory
         else
             UpdateSelection(_currentlySelected - 1);
     }
+
+    public InventoryItem GetSelected()
+    {
+        return _items[_currentlySelected];
+    }
 }

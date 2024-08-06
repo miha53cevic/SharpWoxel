@@ -15,7 +15,7 @@ internal class ChunkEntity : Entity
         TexAtlas = new TextureAtlas("../../../res/textureAtlas.png", 2048, 256);
     }
 
-    public override void Render(Shader shader, Camera camera)
+    protected override void SetupRender(Shader shader, Camera camera)
     {
         shader.Use();
         TexAtlas.Use(TextureUnit.Texture0);

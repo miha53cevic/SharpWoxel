@@ -69,7 +69,7 @@ internal class SimpleEntity(string texturePath) : Entity
         shader.SetMatrix4(shader.GetUniformLocation("mvp"), Maths.CreateMvpMatrix(camera, model));
     }
 
-    public override void Render(Shader shader, Camera camera)
+    protected override void SetupRender(Shader shader, Camera camera)
     {
         if (!_loadedVerticies || !_loadedTextureCoords || !_loadedEbo)
             throw new Exception("[SimpleEntity]: Not fully initialized");

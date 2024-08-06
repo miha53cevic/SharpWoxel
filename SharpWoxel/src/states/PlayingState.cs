@@ -45,10 +45,7 @@ internal class PlayingState : State
     private void HandleWindowFocus()
     {
         // Lock cursor (and hide it) to the screen if the window is in focus
-        if (GameRef.IsFocused)
-            GameRef.CursorState = CursorState.Grabbed;
-        else
-            GameRef.CursorState = CursorState.Normal;
+        GameRef.CursorState = GameRef.IsFocused ? CursorState.Grabbed : CursorState.Normal;
     }
 
     public override void OnUpdateFrame(double deltaTime)
@@ -70,12 +67,40 @@ internal class PlayingState : State
         _playerController.Update(deltaTime, GameRef.KeyboardState, GameRef.MouseState);
 
         // Update voxelOutline Position
-        var blockPosition = _world.CastRayFirstBlockIntersection(_playerController.Camera);
+        UpdateLookAtVoxel();
+
+        HandlePlayerBlockInteraction();
+    }
+
+    private void HandlePlayerBlockInteraction()
+    {
+        var mouseState = GameRef.MouseState;
+
+        if (mouseState.IsButtonPressed(MouseButton.Button1))
+        {
+            if (_voxelOutline.Hidden) return;
+            _world.BreakBlock((Vector3i)_voxelOutline.Position);
+        }
+
+        if (mouseState.IsButtonPressed(MouseButton.Button2))
+        {
+            var selectedItem = _playerController.PlayerInventory.GetSelected().Item;
+
+            if (_voxelOutline.Hidden || selectedItem == null) return;
+            _world.PlaceBlock((Vector3i)_voxelOutline.Position, selectedItem);
+        }
+    }
+
+    private void UpdateLookAtVoxel()
+    {
+        var blockPosition = _world.CastRayToFirstBlock(_playerController.Camera);
         if (blockPosition.HasValue)
         {
             var blockPos = blockPosition.Value;
             _voxelOutline.Position = (blockPos.X, blockPos.Y, blockPos.Z);
+            _voxelOutline.Hidden = false;
         }
+        else _voxelOutline.Hidden = true;
     }
 
     public override void OnRenderFrame(double deltaTime)
